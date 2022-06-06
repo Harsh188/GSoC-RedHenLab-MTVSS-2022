@@ -20,6 +20,6 @@ jobs:
         with:
           registry: ghcr.io
           dockerfile: docker/Dockerfile
-          image_name: $Harsh188/RedHenLab-Multimodal_TV_Show_Segmentation
+          image_name: "harsh188/redhenlab-multimodal_tv_show_segmentation"
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
