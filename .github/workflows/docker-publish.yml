@@ -18,8 +18,8 @@ jobs:
       - name: Build/push
         uses: whoan/docker-build-with-cache-action@v5
         with:
-
+          dockerfile: docker/
           registry: ghcr.io
-          image_name: ${{ github.actor }}/$__IMAGE_NAME__$
+          image_name: ${{ github.actor }}/$__MultimodalTVShowSeg-2022__$
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
