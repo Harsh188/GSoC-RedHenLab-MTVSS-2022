@@ -59,7 +59,7 @@ cd /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation
 3. Start singularity shell
 ```
 module load singularity/3.8.1
-singularity shell -e -H `pwd` -B /mnt/rds/redhen/gallina/ ../Singularity/mtvss.sif
+singularity shell -e -H `pwd` -B /mnt/rds/redhen/gallina/ ../Singularity/mtvss_dev.sif
 ```
 
 #### Jupyter Notebook
