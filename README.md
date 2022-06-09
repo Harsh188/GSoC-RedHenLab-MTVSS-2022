@@ -34,3 +34,45 @@ Once the container is up and running use the following code to launch jupyter no
 ```
 jupyter notebook --ip 0.0.0.0 --no-browser --allow-root
 ```
+
+### Remote Development
+
+The following set of instructions are to be used when developing on the CWRU HPC.
+
+#### Singularity
+1. Start a screen session
+```
+screen -S singularity
+```
+
+or reattach to existing screen
+
+```
+screen -r
+```
+
+2. Navigate to dir on HPC
+```
+cd /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation
+```
+
+3. Start singularity shell
+```
+module load singularity/3.8.1
+singularity shell -e -H `pwd` -B /mnt/rds/redhen/gallina/ ../Singularity/mtvss.sif
+```
+
+#### Jupyter Notebook
+
+Once inside the singularity container, use the following commands to launch the jupyter notebook.
+
+1. Run the jupyter-notebook within existing singularity shell
+```
+jupyter notebook --ip 127.0.0.1 --no-browser
+```
+
+2. Establish ssh port forwarding to acess jupyter notebook on local machine
+```
+ssh -N -f -L localhost:8889:localhost:8889 hxm471@rider.case.edu
+```
+
