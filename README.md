@@ -24,7 +24,7 @@ This command builds the docker image which can then be used to start up the cont
 2. Next use the following command to start up the docker container
 
 ```
-docker run --gpus all -it --rm -p 8888:8888 -v $PWD:/MultiModalTVShowSeg-2022
+docker run --gpus all -it --rm -p 8888:8888 -v $PWD:/MultiModalTVShowSeg-2022 redhenlab-multimodal_tv_show_segmentation_dev
 ```
 
 #### Jupyter Notebook
