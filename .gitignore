@@ -1,7 +1,13 @@
+# Personal Prefrences:
+
 # Folders to exclude
 mtvss/data/
 
 
+
+
+
+# Predefined .gitignore by GitHub:
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
