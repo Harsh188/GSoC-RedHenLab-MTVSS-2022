@@ -1,8 +1,12 @@
 # Personal Prefrences:
 
+# Files to exclude
+.bash_history
+
 # Folders to exclude
 mtvss/data/
-
+.jupyter/
+.local/
 
 
 
