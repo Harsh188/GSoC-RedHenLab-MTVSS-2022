@@ -20,7 +20,7 @@ def parseArgs():
 def main(in_path:str, out_path:str, verbose:bool):
 
 	# Data
-	d_obj = Data(input_dir=in_path,out_path=out_path)
+	d_obj = Data(in_path,out_path)
 	d_obj.ingestion()
 
 	# Model
@@ -28,7 +28,5 @@ def main(in_path:str, out_path:str, verbose:bool):
 if __name__=='__main__':
 	args = parseArgs()
 	in_path, out_path, verbose = args.input_dir, args.output_file, args.verbose
-	try:
-		main(in_path, out_path, verbose)
-	except Exception as e:
-		print('Exception: {}'.format(e))
+	
+	main(in_path, out_path, verbose)

@@ -10,9 +10,9 @@ class Data:
 
 	def ingestion(self):
 		if(not os.path.isdir(self.input_dir)):
-			raise Exception("Error! Input directory does not exist:",input_dir)
-		mp4_files = glob.iglob(input_dir+"**/.mp4",recursive=True)
-		for file in files:
+			raise Exception("Error! Input directory does not exist:",self.input_dir)
+		mp4_files = glob.iglob(self.input_dir+"**/.mp4",recursive=True)
+		for file in mp4_files:
 			pass
 
 	def eda(self):
