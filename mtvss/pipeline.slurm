@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -p gpu
-#SBATCH -C gpu4v100
+#SBATCH -C gpu2v100
 #SBATCH --gres=gpu:1
-#SBATCH -mem=8gb		# Assign 8gb memory; default in 1gb
+#SBATCH --mem=8gb		# Assign 8gb memory; default in 1gb
 #SBATCH --output=output_%A_%a.out
 #SBATCH --array=1-2
 
