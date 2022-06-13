@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH -mem=8gb		# Assign 8gb memory; default in 1gb
 #SBATCH --output=output_%A_%a.out
-#SBATCH --array=1-1
+#SBATCH --array=1-2
 
 # Load Module
 module load singularity
