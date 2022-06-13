@@ -4,7 +4,8 @@
 .bash_history
 
 # Folders to exclude
-mtvss/data/
+mtvss/data/remoteros
+mtvss/data/remotetv
 .jupyter/
 .local/
 
