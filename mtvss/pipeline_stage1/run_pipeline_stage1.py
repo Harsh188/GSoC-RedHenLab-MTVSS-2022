@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplt as plt
+import matplotlib.pyplot as plt
 
 import time
 import datetime
@@ -9,11 +9,13 @@ from data import Data
 
 def parseArgs(in_path:str, out_path:str, verbose:str):
 	parser = argparse.ArgumentParser(description='Pipeline Stage 1')
-	parser.add_argument('--input_dir',metavar='I',help='Path to input mp4 videos')
-	parser.add_argument("--output_file",metavar="O",help='Path to output csv')
-	parser.add_argument("--model",metavar="M",help='Music or image based classifier')
+	parser.add_argument('--input_dir',metavar='I',help='Path to input mp4 videos',
+				default='/mnt/rds/redhen/gallina/Rosenthal/1989/1989-01/1989-01-01')
+	parser.add_argument("--output_file",metavar="O",help='Path to output csv',
+		default="/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/data/1989/1989-01/1989-01-01")
+	parser.add_argument("--model",metavar="M",help='Music or image based classifier',default='music')
 	parser.add_argument("--verbose",help='Print verbose statements to check \
-							the progress of the program',type=bool,action='store_true')
+							the progress of the program',type=bool,action='store_true',default=True)
 	return parser.parse_args()
 
 def main(in_path:str, out_path:str, verbose:bool):
