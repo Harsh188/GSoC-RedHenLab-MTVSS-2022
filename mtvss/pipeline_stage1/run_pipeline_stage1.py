@@ -34,7 +34,7 @@ def parseArgs():
 def main(in_path:str, out_path:str, job_num:int, verbose:bool):
 
 	# Data
-	d_obj = Data(input_dir=in_path,out_path=out_path,job_num)
+	d_obj = Data(in_path,out_path,job_num)
 	files = d_obj.ingestion()
 
 	# Model
@@ -43,7 +43,5 @@ def main(in_path:str, out_path:str, job_num:int, verbose:bool):
 if __name__=='__main__':
 	args = parseArgs()
 	in_path, out_path, job_num, verbose = args.input_dir, args.output_file, args.job_num, args.verbose
-	try:
-		main(in_path, out_path, int(job_num), verbose)
-	except Exception as e:
-		print('Exception: {}'.format(e))
+	
+	main(in_path, out_path, int(job_num) verbose)
