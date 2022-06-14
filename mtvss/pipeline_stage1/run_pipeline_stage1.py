@@ -38,7 +38,7 @@ def main(in_path:str, out_path:str, job_num:int, verbose:bool):
 	files = d_obj.ingestion()
 
 	# Model
-	
+	# m_obj = Model()
 
 if __name__=='__main__':
 	args = parseArgs()

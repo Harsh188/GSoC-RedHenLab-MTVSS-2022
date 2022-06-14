@@ -33,6 +33,7 @@ class Data:
 			raise Exception("Batch file does not exist!")
 		else:
 			batches = np.load(batch_path, allow_pickle=True)
+			print(batches[self.job_num])
 			return batches[self.job_num]
 
 	def eda(self):
