@@ -20,7 +20,9 @@ import pandas as pd
 import numpy as np
 
 class Data:
-
+	"""
+	This Data class is used to manage all of the ingestion and output of data related to the stage one of the pipeline. Various methods are provided to retrieve, manipulate and store data.
+	"""
 
 	def __init__(self, input_dir:str, output_dir:str,job_num:int):
 		self.input_dir = input_dir
@@ -28,6 +30,13 @@ class Data:
 		self.job_num = job_num
 
 	def ingestion(self) -> np.ndarray:
+		"""The ingestion method is used to pull in all the mp4 files related to a certain category. The files are stored in batches and based on the Array job number, the corresponding batch is returned.
+		
+		Args:
+			category (str): TODO
+		Returns:
+			batches (List): List of mp4 files.
+		"""
 		batch_path = '/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/data/tmp/batch_cat1.npy'
 		if(not os.path.isfile(batch_path)):
 			raise Exception("Batch file does not exist!")
