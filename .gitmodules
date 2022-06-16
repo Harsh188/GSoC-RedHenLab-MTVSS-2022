@@ -1,0 +1,3 @@
+[submodule "inaSpeechSegmenter"]
+	path = inaSpeechSegmenter
+	url = https://github.com/ina-foss/inaSpeechSegmenter
