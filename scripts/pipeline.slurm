@@ -9,8 +9,17 @@
 # Load Module
 module load singularity/3.8.1
 
+# Define Rosenthal folder path
+rospath=/mnt/rds/redhen/gallina/Rosenthal/
+
+# Define gallina path
+galpath=/mnt/rds/redhen/gallina/
+
+# Define singularity image path
+singpath=/mnt/rds/redhen/gallina/home/hxm471/Singularity/mtvss_dev.sif
+
 # Process raw data first
-# TODO
+singularity exec -e -B galpath singpath python3 /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/mtvss/data_raw.py --verbose=True
 
 # Each array task runs the same program, but with a different input file.
 n=$SLURM_ARRAY_TASK_ID
@@ -18,4 +27,4 @@ input_file=`sed -n "${n} p" input_files.txt` # Get n-th line ()
 
 # Run singularity container -- Pipeline Stage 1 -- Music Classification
 
-singularity exec -e -B /mnt/rds/redhen/gallina/ /mnt/rds/redhen/gallina/home/hxm471/Singularity/mtvss_dev.sif python3 /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/mtvss/pipeline_stage1/run_pipeline_stage1.py --input_dir='/mnt/rds/redhen/gallina/Rosenthal/input_file' --output_file='/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/data/input_file' --model='music' --job_num=n
+singularity exec -e -B /mnt/rds/redhen/gallina/ /mnt/rds/redhen/gallina/home/hxm471/Singularity/mtvss_dev.sif python3 /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/mtvss/pipeline_stage1/run_pipeline_stage1.py --model='music'
