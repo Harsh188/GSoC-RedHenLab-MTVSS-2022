@@ -1,12 +1,13 @@
 FROM debian:bullseye-slim
 
 
-RUN apt-get update
+RUN apt-get update 
 
 RUN apt-get install --assume-yes --no-install-recommends --quiet \
     python3 \
     python3-pip \
-    ffmpeg
+    ffmpeg \
+    libsndfile1-dev
 
 RUN pip install --no-cache --upgrade pip setuptools
 
@@ -38,5 +39,4 @@ RUN pip install -r requirements.txt
 # Install inaSpeechSegmenter dependencies
 RUN cd inaSpeechSegmenter
 RUN pip install .
-RUN apt-get install libsndfile1-dev
 RUN cd ..
