@@ -1,10 +1,7 @@
 FROM debian:bullseye-slim
 
 
-RUN apt-get update \
-    && apt-get clean \
-    && apt-get autoclean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update
 
 RUN apt-get install --assume-yes --no-install-recommends --quiet \
     python3 \
