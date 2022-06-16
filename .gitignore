@@ -6,6 +6,7 @@
 # Folders to exclude
 mtvss/data/remoteros
 mtvss/data/remotetv
+mtvss/data/splits
 .jupyter/
 .local/
 

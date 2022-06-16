@@ -32,7 +32,7 @@ def parseArgs():
 	parser.add_argument("--model",metavar="M",help='Music or image '\
 		'based classifier')
 	parser.add_argument("--verbose",help='Print verbose statements '\
-		'to check the progress of the program',action='store_true',default=True)
+		'to check the progress of the program')
 	return parser.parse_args()
 
 def main(job_num:int, verbose:bool):
@@ -59,8 +59,8 @@ def main(job_num:int, verbose:bool):
 		print("\n+++ Step 2: Music classification +++\n")
 
 	# Model
-	m_obj = Model()
-	m_obj.music_classification(files)
+	m_obj = Model(files)
+	m_obj.music_classification()
 
 
 if __name__=='__main__':

@@ -1,6 +1,10 @@
 FROM debian:bullseye-slim
-RUN apt-get update
 
+
+RUN apt-get update \
+    && apt-get clean \
+    && apt-get autoclean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get install --assume-yes --no-install-recommends --quiet \
     python3 \
@@ -17,13 +21,25 @@ RUN pip3 install numpy \
     h5py \
     opencv-python
 
+FROM tensorflow/tensorflow:2.7.0-gpu
+
 # Set working directory to MultiModalTVShowSeg-2022
 WORKDIR /MultiModalTVShowSeg-2022
 
 ADD ./requirements.txt .
+ADD ./inaSpeechSegmenter .
 
 # View contents while building dockerfile
 RUN ls -a
 
-# Install dependencies
+
+RUN pip install --upgrade pip && pip install . && pip cache purge
+
+# Install local dependencies
 RUN pip install -r requirements.txt
+
+# Install inaSpeechSegmenter dependencies
+RUN cd inaSpeechSegmenter
+RUN pip install .
+RUN apt-get install libsndfile1-dev
+RUN cd ..

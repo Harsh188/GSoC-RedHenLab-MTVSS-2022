@@ -55,7 +55,7 @@ def traverse_iglob(files,verbose):
 		file_split = file[const.FILE_START_INDEX:].split('_')
 		year, month, day = file_split[0].split('-')
 		files_split.append([file_split[0]]+[year]+[month]+[day]
-			+file_split[1:5]+[file_split[-1]]+[file[const.FILE_START_INDEX:]])
+			+file_split[1:5]+[file_split[-1]]+[file])
 	if(verbose):
 		print('\n\n\n+++ Done reading mp4 files +++\n\n\n')
 	return ctr,files_split

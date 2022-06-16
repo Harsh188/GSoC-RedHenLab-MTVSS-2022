@@ -30,6 +30,17 @@ MP4_FILE_BATCH_SIZE=100
 
 # Starting index of the file name (used to remove path info)
 FILE_START_INDEX=58
+# Starting index of the folder
+FOLDER_START_INDEX=33
 
 # Constant label values which are extracted from the file name
 COLUMN_LABELS=['Pull Date','Year','Month','Day','TODO','Lang','Barcode','V No.','File Type','File Path']
+
+## InaSpeechSegmenter Constants
+
+BATCH_SIZE=1024
+VAD_ENGINE='smn'
+DETECT_GENDER=False
+FFMPEG_BINARY='ffmpeg'
+EXPORT_FORMAT='csv'
+ENERGY_RATIO=0.03

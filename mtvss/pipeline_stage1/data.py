@@ -51,7 +51,7 @@ class Data:
 		batch_path = const.TMP_BATCH_PATH
 		# Check if Batched file exists
 		if(not os.path.isfile(batch_path)):
-			raise Exception("Batch file does not exist!")
+			raise Exception("Batch file {0} does not exist!".format(batch_path))
 		else:
 			batches = np.load(batch_path, allow_pickle=True)
 			return batches[self.job_num]
