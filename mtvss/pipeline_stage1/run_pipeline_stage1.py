@@ -44,4 +44,4 @@ if __name__=='__main__':
 	args = parseArgs()
 	in_path, out_path, job_num, verbose = args.input_dir, args.output_file, args.job_num, args.verbose
 	
-	main(in_path, out_path, int(job_num) verbose)
+	main(in_path, out_path, int(job_num), verbose)

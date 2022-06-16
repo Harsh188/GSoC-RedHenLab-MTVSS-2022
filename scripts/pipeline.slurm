@@ -7,7 +7,7 @@
 #SBATCH --array=1-2
 
 # Load Module
-module load singularity
+module load singularity/3.8.1
 
 # Process raw data first
 # TODO
