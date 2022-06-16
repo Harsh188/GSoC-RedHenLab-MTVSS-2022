@@ -11,6 +11,7 @@
 # copies or substantial portions of the Software.
 # =============================================================================
 
+# Imports
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -19,29 +20,58 @@ import datetime
 import argparse
 
 from data import Data
+from model import Model
 
 def parseArgs():
+	'''Processes arugments
+
+	Returns: parser.parse_args(): Returns populated namespace 
+	'''
 	parser = argparse.ArgumentParser(description='Pipeline Stage 1')
-	parser.add_argument('--input_dir',metavar='I',help='Path to input mp4 videos',
-				default='/mnt/rds/redhen/gallina/Rosenthal/1989/1989-01/1989-01-01')
-	parser.add_argument("--output_file",metavar="O",help='Path to output csv',
-		default="/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/data/1989/1989-01/1989-01-01")
 	parser.add_argument("--job_num",metavar="-J",help='Job number')
-	parser.add_argument("--model",metavar="M",help='Music or image based classifier',default='music')
-	parser.add_argument("--verbose",help='Print verbose statements to check the progress of the program',action='store_true',default=True)
+	parser.add_argument("--model",metavar="M",help='Music or image '\
+		'based classifier')
+	parser.add_argument("--verbose",help='Print verbose statements '\
+		'to check the progress of the program',action='store_true',default=True)
 	return parser.parse_args()
 
-def main(in_path:str, out_path:str, job_num:int, verbose:bool):
+def main(job_num:int, verbose:bool):
+	'''
 
+	Args:
+		job_num (int): Array Job number
+		verbose (bool): If true it prints verbose statements to 
+			check the progress of the program
+
+	Returns:
+		Nothing
+
+	'''
+	if(verbose):
+		print("\n+++ Step 1: Data ingestion +++\n")
+	
 	# Data
-	d_obj = Data(in_path,out_path,job_num)
+	d_obj = Data(job_num,verbose)
 	files = d_obj.ingestion()
 
+	if(verbose):
+		print("Files:",files)
+		print("\n+++ Step 2: Music classification +++\n")
+
 	# Model
-	# m_obj = Model()
+	m_obj = Model()
+	m_obj.music_classification(files)
+
 
 if __name__=='__main__':
+
 	args = parseArgs()
-	in_path, out_path, job_num, verbose = args.input_dir, args.output_file, args.job_num, args.verbose
-	
-	main(in_path, out_path, int(job_num), verbose)
+	job_num, verbose = args.job_num, args.verbose
+
+	if(verbose):
+		print('\n=== run_pipeline_stage1.py: Start ===\n')
+
+	main(int(job_num), verbose)
+
+	if(verbose):
+		print('\n=== run_pipeline_stage1.py: Done ===\n')
