@@ -1,5 +1,6 @@
 # Create base OS Image
-FROM debian:bullseye-slim AS base
+# FROM debian:bullseye-slim AS base
+FROM tensorflow/tensorflow:2.9.0-gpu
 
 # Update the OS image
 RUN apt-get -y update 
@@ -12,7 +13,7 @@ RUN apt-get install -y --no-install-recommends --quiet \
     libsndfile1-dev
 
 # Image layer on top of base to install requirements
-FROM tensorflow/tensorflow:2.7.0-gpu
+# FROM tensorflow/tensorflow:2.9.0-gpu
 
 # Set working directory to MultiModalTVShowSeg-2022
 WORKDIR /MultiModalTVShowSeg-2022
