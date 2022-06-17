@@ -2,3 +2,10 @@ numpy
 pandas
 matplotlib
 notebook
+numpy
+scikit-learn
+torch
+nltk
+matplotlib
+opencv-python
+seaborn

@@ -1,24 +1,17 @@
-FROM debian:bullseye-slim
+# Create base OS Image
+FROM debian:bullseye-slim AS base
 
+# Update the OS image
+RUN apt-get -y update 
 
-RUN apt-get update 
-
-RUN apt-get install --assume-yes --no-install-recommends --quiet \
+# Install packages
+RUN apt-get install -y --no-install-recommends --quiet \
     python3 \
     python3-pip \
     ffmpeg \
     libsndfile1-dev
 
-RUN pip install --no-cache --upgrade pip setuptools
-
-RUN pip3 install numpy \
-    scikit-learn \
-    torch \
-    nltk \
-    matplotlib \
-    h5py \
-    opencv-python
-
+# Image layer on top of base to install requirements
 FROM tensorflow/tensorflow:2.7.0-gpu
 
 # Set working directory to MultiModalTVShowSeg-2022
@@ -30,13 +23,10 @@ ADD ./inaSpeechSegmenter .
 # View contents while building dockerfile
 RUN ls -a
 
-
-RUN pip install --upgrade pip && pip install . && pip cache purge
-
 # Install local dependencies
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # Install inaSpeechSegmenter dependencies
 RUN cd inaSpeechSegmenter
-RUN pip install .
+RUN pip3 install .
 RUN cd ..
