@@ -69,7 +69,7 @@ class Model:
 		and segment them into noise/music/speech intervals.
 
 		Args:
-			
+
 		Returns: 
 		'''
 		
@@ -80,7 +80,7 @@ class Model:
 			# Feed segments into InaSpeechSegmenter (parallely)
 			seg = Segmenter(vad_engine=const.VAD_ENGINE, detect_gender=const.DETECT_GENDER, 
 				ffmpeg=const.FFMPEG_BINARY, energy_ratio=const.ENERGY_RATIO, 
-				batch_size=const.BATCH_SIZE)
+				batch_size=const.BATCH_SIZE,verbose=self.verbose)
 			
 			odir = const.TMP_PATH+'splits'
 			assert os.access(odir, os.W_OK), 'Directory %s is not writable!' % odir

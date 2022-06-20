@@ -15,10 +15,13 @@
 ROS_PATH='/mnt/rds/redhen/gallina/Rosenthal/'
 
 # Harshith's project directory path
-H_PROJ_PATH='/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/'
+H_PROJ_PATH='/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/'
+
+# GPU root path
+G_PATH='/tmp/hxm471/'
 
 # Temporary data storage path
-TMP_PATH=H_PROJ_PATH+'mtvss/data/tmp/'
+TMP_PATH=G_PATH+'mtvss/data/tmp/'
 
 # Temporary batch storage path
 TMP_BATCH_PATH=TMP_PATH+'batch_cat1.npy'

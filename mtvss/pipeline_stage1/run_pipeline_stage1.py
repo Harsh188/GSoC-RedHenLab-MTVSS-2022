@@ -14,6 +14,7 @@
 # Imports
 import numpy as np
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
 import time
 import datetime
@@ -36,7 +37,15 @@ def parseArgs():
 	return parser.parse_args()
 
 def main(job_num:int, verbose:bool):
-	'''
+	'''This method runs the music classification and title sequence
+	image based filtering. This completes the first stage of the pipeline.
+	The output is a noisy metadata consisting of:
+		1. Filename		(str)
+		2. Category number	(int)
+		3. Start times	(array)
+		5. Stop times	(array)
+		6. Audio features	(str)
+		7. Title sequence images (array)
 
 	Args:
 		job_num (int): Array Job number
@@ -44,7 +53,7 @@ def main(job_num:int, verbose:bool):
 			check the progress of the program
 
 	Returns:
-		Nothing
+		TODO
 
 	'''
 	if(verbose):
@@ -67,6 +76,11 @@ if __name__=='__main__':
 
 	args = parseArgs()
 	job_num, verbose = args.job_num, args.verbose
+
+	if(verbose):
+		print('\n=== GPU Information ===\n')
+		print('GPU Name:',tf.test.gpu_device_name())
+		print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
 	if(verbose):
 		print('\n=== run_pipeline_stage1.py: Start ===\n')
