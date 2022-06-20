@@ -59,7 +59,7 @@ def main(job_num:int, verbose:bool):
 		print("\n+++ Step 2: Music classification +++\n")
 
 	# Model
-	m_obj = Model(files)
+	m_obj = Model(files,verbose)
 	m_obj.music_classification()
 
 

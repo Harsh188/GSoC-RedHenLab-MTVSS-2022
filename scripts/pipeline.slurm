@@ -26,5 +26,4 @@ n=$SLURM_ARRAY_TASK_ID
 input_file=`sed -n "${n} p" input_files.txt` # Get n-th line ()
 
 # Run singularity container -- Pipeline Stage 1 -- Music Classification
-
 singularity exec -e -B /mnt/rds/redhen/gallina/ /mnt/rds/redhen/gallina/home/hxm471/Singularity/mtvss_dev.sif python3 /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/mtvss/pipeline_stage1/run_pipeline_stage1.py --model='music'

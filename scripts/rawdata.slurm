@@ -9,14 +9,17 @@
 # Load Module
 module load singularity/3.8.1
 
+# Mount src
+rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/ /tmp/$USER/
+
 # Define Rosenthal folder path
-alias rospath=/mnt/rds/redhen/gallina/Rosenthal/
+export ROSPATH=/mnt/rds/redhen/gallina/Rosenthal/
 
 # Define gallina path
-alias galpath=/mnt/rds/redhen/gallina/
+export GALPATH=/mnt/rds/redhen/gallina/
 
 # Define singularity image path
-alias singpath=/mnt/rds/redhen/gallina/home/hxm471/Singularity/mtvss_dev.sif
+export SINGPATH=/mnt/rds/redhen/gallina/home/hxm471/Singularity/mtvss_dev.sif
 
 # Process raw data first
-singularity exec -e -B /mnt/rds/redhen/gallina/ /mnt/rds/redhen/gallina/home/hxm471/Singularity/mtvss_dev.sif python3 /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/mtvss/data_raw.py --verbose=True
+singularity exec -e -B /mnt/rds/redhen/gallina/ /tmp/$USER/Singularity/mtvss_dev.sif python3 /tmp/$USER/RedHenLab-Multimodal_TV_Show_Segmentation/mtvss/data_raw.py --verbose=True

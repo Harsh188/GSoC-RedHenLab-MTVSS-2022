@@ -75,14 +75,14 @@ class Model:
 		
 		for f in self.files:
 			# Break file into 45min segments:
-			segment_file(f)
+			# segment_file(f)
 
 			# Feed segments into InaSpeechSegmenter (parallely)
 			seg = Segmenter(vad_engine=const.VAD_ENGINE, detect_gender=const.DETECT_GENDER, 
 				ffmpeg=const.FFMPEG_BINARY, energy_ratio=const.ENERGY_RATIO, 
 				batch_size=const.BATCH_SIZE)
 			
-			odir = const.TEMP_PATH+'/splits/'
+			odir = const.TMP_PATH+'splits'
 			assert os.access(odir, os.W_OK), 'Directory %s is not writable!' % odir
 
 			with warnings.catch_warnings():
