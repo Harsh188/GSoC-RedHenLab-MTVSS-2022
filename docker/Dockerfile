@@ -31,3 +31,6 @@ RUN pip3 install -r requirements.txt
 RUN cd inaSpeechSegmenter
 RUN pip3 install .
 RUN cd ..
+
+# Remove inaSpeechSegmenter
+RUN rm -f -r ./inaSpeechSegmenter
