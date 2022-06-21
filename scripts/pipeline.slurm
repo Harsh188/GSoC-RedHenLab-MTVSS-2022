@@ -20,7 +20,7 @@ singpath=/mnt/rds/redhen/gallina/home/hxm471/Singularity/mtvss_dev.sif
 # Copy src code
 rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/mtvss /tmp/$USER/
 # Copy inaSpeechSegmenter library
-rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/inaSpeechSegmenter/inaSpeechSegmenter /tmp/$USER/
+rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/inaSpeechSegmenter/inaSpeechSegmenter /tmp/$USER/mtvss
 # Copy singularity image
 rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/Singularity/mtvss_dev.sif /tmp/$USER/
 
@@ -48,9 +48,6 @@ while IFS= read -r line; do
 	fi
 	i=$((i+1))
 done < /tmp/$USER/mtvss/data/tmp/batch_cat1.txt
-
-
-
 
 # Run singularity container -- Pipeline Stage 1 -- Music Classification
 singularity exec -e --nv -B /tmp/$USER/ /tmp/$USER/mtvss_dev.sif python3 /tmp/$USER/mtvss/pipeline_stage1/run_pipeline_stage1.py --job_num=${SLURM_ARRAY_TASK_ID} --model="music" --verbose=True
