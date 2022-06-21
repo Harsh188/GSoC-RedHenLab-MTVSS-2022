@@ -65,31 +65,41 @@ class Model:
 		return
 
 	def music_classification(self):
-		'''Method to take batches of mp4 files, break them into 45min segments
-		and segment them into noise/music/speech intervals.
+		'''Method to invoke InaSpeechSegmenter and produce segments of
+		noise/music/speech intervals.
 
 		Args:
 
 		Returns: 
 		'''
-		
-		for f in self.files:
-			# Break file into 45min segments:
-			# segment_file(f)
 
-			# Feed segments into InaSpeechSegmenter (parallely)
-			seg = Segmenter(vad_engine=const.VAD_ENGINE, detect_gender=const.DETECT_GENDER, 
+		if(self.verbose):
+			print("\n-- Step 2.1: Initializing Segmenter --\n")
+		# Initialize the segmenter
+		seg = Segmenter(vad_engine=const.VAD_ENGINE, detect_gender=const.DETECT_GENDER, 
 				ffmpeg=const.FFMPEG_BINARY, energy_ratio=const.ENERGY_RATIO, 
-				batch_size=const.BATCH_SIZE,verbose=self.verbose)
-			
-			odir = const.TMP_PATH+'splits'
-			assert os.access(odir, os.W_OK), 'Directory %s is not writable!' % odir
+				batch_size=const.BATCH_SIZE)
+		if(self.verbose):
+			print("\n-- Step 2.2: Checking output directory --\n")
+		# Check output DIR
+		odir = const.TMP_PATH+'splits'
+		assert os.access(odir, os.W_OK), 'Directory %s is not writable!' % odir
 
-			with warnings.catch_warnings():
-			    warnings.simplefilter("ignore")
-			    base = [os.path.splitext(os.path.basename(e))[0] for e in self.segments]
-			    output_files = [os.path.join(odir, e + '.' + args.export_format) for e in base]
-			    seg.batch_process(self.segments, output_files, verbose=True, output_format=args.export_format)
+
+		with warnings.catch_warnings():
+			warnings.simplefilter("ignore")
+
+			# Extract basename of file
+			base = [os.path.splitext(os.path.basename(e))[0] for e in self.files]
+			output_files = [os.path.join(odir, e + '.' + 'csv') for e in base]
+
+			if(self.verbose):
+				print("\nbase files:\n",base)
+				print("\nOutput files:\n",output_files)
+				print("\n-- Step 2.3: Starting batch process --\n")
+
+			seg.batch_process(self.files.tolist(), output_files, 
+				verbose=self.verbose, output_format='csv')
 		
 		# Merge csv outputs
 

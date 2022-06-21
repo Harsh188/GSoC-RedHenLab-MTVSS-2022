@@ -16,6 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
+
 import time
 import datetime
 import argparse
@@ -81,7 +82,9 @@ if __name__=='__main__':
 		print('\n=== GPU Information ===\n')
 		print('GPU Name:',tf.test.gpu_device_name())
 		print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-
+	gpu=tf.config.list_physical_devices('GPU')
+	if(len(gpu)):
+		tf.config.experimental.set_memory_growth(gpu[0], True)
 	if(verbose):
 		print('\n=== run_pipeline_stage1.py: Start ===\n')
 
