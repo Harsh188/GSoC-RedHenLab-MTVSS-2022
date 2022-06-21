@@ -36,17 +36,19 @@ n=$SLURM_ARRAY_TASK_ID
 i=0
 allFiles=()
 while IFS= read -r line; do
-	if [ $i == $n ] 
+	if [ $i -eq $n ] 
 	then
-		echo "$line"
+		echo i equal to n
 		allFiles+=($line)
 		
 		for f in ${allFiles[@]}; do
-			rsync -az hpc3:$line /tmp/$USER/${f} /tmp/$USER/mtvss/data/tmp/video_files
+			echo $f
+			rsync -az hpc3:${f} /tmp/$USER/mtvss/data/tmp/video_files
 		done
 	fi
 	i=$((i+1))
 done < /tmp/$USER/mtvss/data/tmp/batch_cat1.txt
+
 
 
 
