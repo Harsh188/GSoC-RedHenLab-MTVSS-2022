@@ -19,7 +19,7 @@ sinfo
 
 Requesting GPU (example):
 ```
-srun -p gpu -C gpu2v100 --gres=gpu:1 --pty bash
+srun -p gpu -C gpu2v100 --mem=9gb --gres=gpu:1 --nodelist=gput059 --pty bash
 ```
 
 ```
