@@ -8,3 +8,5 @@ nltk
 matplotlib
 opencv-python
 seaborn
+mkdocs
+mkdocstrings
