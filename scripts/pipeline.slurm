@@ -58,3 +58,6 @@ singularity exec -e --nv -B /tmp/$USER/ /tmp/$USER/mtvss_dev.sif python3 /tmp/$U
 
 # Remove temporary files
 rm -f -r /tmp/$USER/
+
+
+rsync -az hpc3:/mnt/rds/redhen/gallina/Rosenthal/2006/2006-01/2006-01-19/2006-01-19_0000_US_00002692_V2_MB13_VHS14_H13_CG.mp4 /tmp/hxm471/
