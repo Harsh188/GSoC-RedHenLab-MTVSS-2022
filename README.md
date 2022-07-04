@@ -81,3 +81,6 @@ ssh -N -f -L localhost:8889:localhost:8889 hxm471@rider.case.edu
 ```
 lsyncd -nodaemon -rsyncssh ./ hxm471@rider.case.edu /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation
 ```
+
+
+ssh -L 8889:127.0.0.1:8889 -J hxm471@rider.case.edu hxm471@gput058
