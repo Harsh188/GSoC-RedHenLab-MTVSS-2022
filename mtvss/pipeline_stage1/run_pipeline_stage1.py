@@ -30,8 +30,6 @@ import logging
 from data import Data
 from model import Model
 
-# sys.path.insert(1,'tmp/hxm471/inaSpeechSegmenter')
-
 # Functions
 def parseArgs():
 	'''Processes arugments
@@ -72,11 +70,11 @@ def load_files(files,loaded_files,finished,verbose):
 		# Load rsync arguments
 		args = ["rsync","-az","hpc3:"+str(f),"/tmp/hxm471/video_files"]
 		# Launch rsync
-        p = Popen(args, stdout=PIPE, stderr=PIPE)
-        # Determine if error occured
-        output,error = p.communicate()
-        assert p.returncode == 0, error
-        # Add rsynced file to Queue
+		p = Popen(args, stdout=PIPE, stderr=PIPE)
+		# Determine if error occured
+		output,error = p.communicate()
+		assert p.returncode == 0, error
+		# Add rsynced file to Queue
 		loaded_files.put(f)
 		if (verbose):
 			display(f'Producing {ctr}: {f}')
@@ -147,6 +145,9 @@ def main(job_num:int, verbose:bool):
 	# Data
 	d_obj = Data(job_num,verbose)
 	files = d_obj.ingestion()
+	
+	if verbose:
+		print(files)
 
 	# Create a queue to hold loaded files
 	loaded_files = Queue(maxsize=8)
@@ -154,9 +155,9 @@ def main(job_num:int, verbose:bool):
 
 	if verbose:
 		print('\n+++ Step 2: Multi-threaded Consumer-Producer +++')
-	producer = Thread(target=load_files, args=[files,loaded_files,finished]
+	producer = Thread(target=load_files, args=[files,loaded_files,finished,verbose]
 						,daemon=True)
-	consumer = Thread(target=process_files, args[loaded_files,finished]
+	consumer = Thread(target=process_files, args=[loaded_files,finished,verbose]
 						,daemon=True)
 
 	producer.start()

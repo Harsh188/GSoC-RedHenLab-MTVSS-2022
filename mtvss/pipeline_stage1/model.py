@@ -21,7 +21,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import constants as const
 
-sys.path.insert(1,'tmp/hxm471/inaSpeechSegmenter')
+sys.path.insert(1,'/tmp/hxm471/inaSpeechSegmenter')
 from segmenter import Segmenter, seg2csv
 
 class Model:
