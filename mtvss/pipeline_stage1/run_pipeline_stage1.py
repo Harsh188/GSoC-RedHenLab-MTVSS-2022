@@ -16,14 +16,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
+from subprocess import Popen, PIPE
+import multiprocessing
+import threading
+from threading import Thread
+from queue import Queue
 
 import time
 import datetime
 import argparse
+import logging
 
 from data import Data
 from model import Model
 
+# sys.path.insert(1,'tmp/hxm471/inaSpeechSegmenter')
+
+# Functions
 def parseArgs():
 	'''Processes arugments
 
@@ -36,6 +45,81 @@ def parseArgs():
 	parser.add_argument("--verbose",help='Print verbose statements '\
 		'to check the progress of the program')
 	return parser.parse_args()
+
+def display(msg):
+	threadname = threading.current_thread().name
+	processname = multiprocessing.current_process().name
+	logging.info(f'{processname}\\{threadname}: {msg}')
+
+# Producer
+def load_files(files,loaded_files,finished,verbose):
+	'''Method to load the mp4 files using multi-threading. This method
+	acts as the producer.
+
+	Args:
+		files (np.ndarray): MP4 file path in gallina
+		loaded_files (Queue):
+		finished (Queue):
+	
+	Returns:
+	'''
+	# Finished Queue to indicate status of producer
+	finished.put(False)
+	# Counter variable
+	ctr=0
+	# Loop through all the files in the batch
+	for f in files:
+		# Load rsync arguments
+		args = ["rsync","-az","hpc3:"+str(f),"/tmp/hxm471/video_files"]
+		# Launch rsync
+        p = Popen(args, stdout=PIPE, stderr=PIPE)
+        # Determine if error occured
+        output,error = p.communicate()
+        assert p.returncode == 0, error
+        # Add rsynced file to Queue
+		loaded_files.put(f)
+		if (verbose):
+			display(f'Producing {ctr}: {f}')
+		ctr+=1
+
+	# Indicate producer is done
+	finished.put(True)
+	if(verbose):
+		display('finished')
+
+# Consumer
+def process_files(loaded_files,finished,verbose):
+	'''Method to take loaded files and process them using multi-threading.
+	This method acts as the consumer.
+
+	Args:
+		loaded_files (Queue):
+		finished (Queue):
+	Returns:
+	'''
+	# Counter variable
+	ctr=0
+	while True:
+		if not loaded_files.empty():
+			# Get the loaded file
+			f = loaded_files.get()
+			if(verbose):
+				display(f'Consuming {ctr}: {f}')
+
+			# Perform Music Classification
+			if verbose:
+				print('\n-- Step 2.1 Music Classification --\n')
+			m_obj = Model(f,verbose)
+			m_obj.music_classification()
+
+			ctr+=1
+		else:
+			# Exit loop if producer is done
+			status = finished.get()
+			if status == True:
+				break
+	if(verbose):
+		display('finished')
 
 def main(job_num:int, verbose:bool):
 	'''This method runs the music classification and title sequence
@@ -64,13 +148,27 @@ def main(job_num:int, verbose:bool):
 	d_obj = Data(job_num,verbose)
 	files = d_obj.ingestion()
 
-	if(verbose):
-		print("Files:",files)
-		print("\n+++ Step 2: Music classification +++\n")
+	# Create a queue to hold loaded files
+	loaded_files = Queue(maxsize=8)
+	finished = Queue()
 
-	# Model
-	m_obj = Model(files,verbose)
-	m_obj.music_classification()
+	if verbose:
+		print('\n+++ Step 2: Multi-threaded Consumer-Producer +++')
+	producer = Thread(target=load_files, args=[files,loaded_files,finished]
+						,daemon=True)
+	consumer = Thread(target=process_files, args[loaded_files,finished]
+						,daemon=True)
+
+	producer.start()
+	consumer.start()
+
+	producer.join()
+	if(verbose):
+		display('Producer has finished\n')
+
+	consumer.join()
+	if verbose:
+		display('Consumer has finished\n')
 
 
 if __name__=='__main__':
