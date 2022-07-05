@@ -10,6 +10,7 @@ RUN apt-get install -y --no-install-recommends --quiet \
     python3 \
     python3-pip \
     ffmpeg \
+    rsync \
     libsndfile1-dev
 
 # Image layer on top of base to install requirements
