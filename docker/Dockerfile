@@ -11,6 +11,7 @@ RUN apt-get install -y --no-install-recommends --quiet \
     python3-pip \
     ffmpeg \
     rsync \
+    openssh-client \
     libsndfile1-dev
 
 # Image layer on top of base to install requirements
