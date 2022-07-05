@@ -83,4 +83,4 @@ lsyncd -nodaemon -rsyncssh ./ hxm471@rider.case.edu /mnt/rds/redhen/gallina/home
 ```
 
 
-ssh -L 8889:127.0.0.1:8889 -J hxm471@rider.case.edu hxm471@gput058
+ssh -L 8889:127.0.0.1:8889 -J hxm471@rider.case.edu hxm471@gput058 
