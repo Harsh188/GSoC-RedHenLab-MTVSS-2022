@@ -16,6 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
+import os
 from subprocess import Popen, PIPE
 import multiprocessing
 import threading
@@ -47,7 +48,7 @@ def parseArgs():
 def display(msg):
 	threadname = threading.current_thread().name
 	processname = multiprocessing.current_process().name
-	logging.info(f'{processname}\\{threadname}: {msg}')
+	print(f'{processname}\\{threadname}: {msg}')
 
 # Producer
 def load_files(files,loaded_files,finished,verbose):
@@ -67,8 +68,11 @@ def load_files(files,loaded_files,finished,verbose):
 	ctr=0
 	# Loop through all the files in the batch
 	for f in files:
+		if (verbose):
+			display(f'Producing {ctr}: {f}')
+
 		# Load rsync arguments
-		args = ["rsync","-az","hpc3:"+str(f),"/tmp/hxm471/video_files"]
+		args = ["rsync","-e","ssh","-az","hpc4:"+str(f),"/tmp/hxm471/video_files"]
 		# Launch rsync
 		p = Popen(args, stdout=PIPE, stderr=PIPE)
 		# Determine if error occured
@@ -76,8 +80,6 @@ def load_files(files,loaded_files,finished,verbose):
 		assert p.returncode == 0, error
 		# Add rsynced file to Queue
 		loaded_files.put(f)
-		if (verbose):
-			display(f'Producing {ctr}: {f}')
 		ctr+=1
 
 	# Indicate producer is done
@@ -95,6 +97,7 @@ def process_files(loaded_files,finished,verbose):
 		finished (Queue):
 	Returns:
 	'''
+
 	# Counter variable
 	ctr=0
 	while True:
@@ -110,12 +113,30 @@ def process_files(loaded_files,finished,verbose):
 			m_obj = Model(f,verbose)
 			m_obj.music_classification()
 
+			if verbose:
+				print('\n-- Step 2.2 Remove mp4 File --\n')
+			# Extract basename of file
+			base = os.path.splitext(os.path.basename(f))
+			# Load rm arguments
+			args = ["rm","-rf","/tmp/hxm471/video_files/"+base[0]]
+			# Launch rm
+			p = Popen(args, stdout=PIPE, stderr=PIPE)
+			# Determine if error occured
+			output,error = p.communicate()
+			assert p.returncode == 0, error
+
+			# Increment counter
 			ctr+=1
 		else:
+			if verbose:
+				display(f'Consumer {ctr}:Q empty')
 			# Exit loop if producer is done
 			status = finished.get()
 			if status == True:
 				break
+			else:
+				finished.put(False)
+			time.sleep(10)
 	if(verbose):
 		display('finished')
 

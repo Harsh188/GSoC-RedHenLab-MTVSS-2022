@@ -39,7 +39,7 @@ mkdir /tmp/$USER/video_files
 # done < /tmp/$USER/mtvss/data/tmp/batch_cat1.txt
 
 # Run singularity container -- Pipeline Stage 1 -- Music Classification
-singularity exec -e --nv -B /tmp/$USER/ /scratch/users/$USER/mtvss_dev2.sif python3 /tmp/$USER/mtvss/pipeline_stage1/run_pipeline_stage1.py --job_num=0 --model="music" --verbose=True
+singularity exec -e --nv -B /tmp/$USER/ /scratch/users/$USER/mtvss_dev4.sif python3 -m memray run /tmp/$USER/mtvss/pipeline_stage1/run_pipeline_stage1.py --job_num=0 --model="music" --verbose=True
 
 # Remove temporary files
 # rm -f -r /tmp/$USER/
