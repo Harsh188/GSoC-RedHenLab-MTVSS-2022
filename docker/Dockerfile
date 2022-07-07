@@ -7,11 +7,18 @@ RUN apt-get -y update
 
 # Install packages
 RUN apt-get install -y --no-install-recommends --quiet \
+    build-essential \
     python3 \
     python3-pip \
+    make \
+    cmake \
     ffmpeg \
     rsync \
     openssh-client \
+    libavcodec-dev \
+    libavfilter-dev \
+    libavformat-dev \
+    libavutil-dev \
     libsndfile1-dev
 
 # Image layer on top of base to install requirements
@@ -36,3 +43,9 @@ RUN cd ..
 
 # Remove inaSpeechSegmenter
 RUN rm -f -r ./inaSpeechSegmenter
+
+# Build decord
+RUN cd decord
+RUN mkdir build && cd build
+RUN cmake .. -DUSE_CUDA=ON -DCMAKE_BUILD_TYPE=Release
+RUN make

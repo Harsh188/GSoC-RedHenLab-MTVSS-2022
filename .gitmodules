@@ -1,3 +1,6 @@
 [submodule "inaSpeechSegmenter"]
 	path = inaSpeechSegmenter
 	url = git@github.com:Harsh188/inaSpeechSegmenter.git
+[submodule "decord"]
+	path = decord
+	url = git@github.com:dmlc/decord.git
