@@ -43,9 +43,3 @@ RUN cd ..
 
 # Remove inaSpeechSegmenter
 RUN rm -f -r ./inaSpeechSegmenter
-
-# Build decord
-RUN cd decord
-RUN mkdir build && cd build
-RUN cmake .. -DUSE_CUDA=ON -DCMAKE_BUILD_TYPE=Release
-RUN make

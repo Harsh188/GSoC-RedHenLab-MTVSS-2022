@@ -11,3 +11,4 @@ seaborn
 mkdocs
 mkdocstrings
 memray
+decord
