@@ -33,9 +33,10 @@ class Data:
 	Various methods are provided to retrieve, manipulate and store data.
 	"""
 
-	def __init__(self, job_num:int, verbose:bool):
+	def __init__(self, job_num:int, verbose:bool,file_path):
 		self.job_num = job_num
 		self.verbose = verbose
+		self.file_path = file_path
 
 	def ingestion(self) -> np.ndarray:
 		"""The ingestion method is used to pull in all the mp4 files 
@@ -48,7 +49,7 @@ class Data:
 			batches (List): List of mp4 files.
 		"""
 
-		batch_path = const.TMP_BATCH_PATH
+		batch_path = self.file_path+"/hxm471/mtvss/data/tmp/batch_cat1.npy"
 		# Check if Batched file exists
 		if(not os.path.isfile(batch_path)):
 			raise Exception("Batch file {0} does not exist!".format(batch_path))

@@ -43,6 +43,7 @@ def parseArgs():
 		'based classifier')
 	parser.add_argument("--verbose",help='Print verbose statements '\
 		'to check the progress of the program')
+	parser.add_argument("--file_path",metavar="-F",help='tmp file path')
 	return parser.parse_args()
 
 def display(msg):
@@ -51,15 +52,16 @@ def display(msg):
 	print(f'{processname}\\{threadname}: {msg}')
 
 # Producer
-def load_files(files,loaded_files,finished,verbose):
+def load_files(files,loaded_files,finished,verbose,file_path):
 	'''Method to load the mp4 files using multi-threading. This method
 	acts as the producer.
 
 	Args:
-		files (np.ndarray): MP4 file path in gallina
-		loaded_files (Queue):
-		finished (Queue):
-	
+		files (np.ndarray): MP4 file path in gallina.
+		loaded_files (Queue): MP4 files which have been rsynced to /tmp.
+		finished (Queue): Determines if producer is done.
+		verbose (bool): If true it prints verbose statements to 
+			check the progress of the program
 	Returns:
 	'''
 	# Finished Queue to indicate status of producer
@@ -72,7 +74,7 @@ def load_files(files,loaded_files,finished,verbose):
 			display(f'Producing {ctr}: {f}')
 
 		# Load rsync arguments
-		args = ["rsync","-e","ssh","-az","hpc4:"+str(f),"/tmp/hxm471/video_files"]
+		args = ["rsync","-e","ssh","-az","hpc4:"+str(f),file_path+"/hxm471/video_files"]
 		# Launch rsync
 		p = Popen(args, stdout=PIPE, stderr=PIPE)
 		# Determine if error occured
@@ -88,13 +90,15 @@ def load_files(files,loaded_files,finished,verbose):
 		display('finished')
 
 # Consumer
-def process_files(loaded_files,finished,verbose):
+def process_files(loaded_files,finished,verbose,file_path):
 	'''Method to take loaded files and process them using multi-threading.
 	This method acts as the consumer.
 
 	Args:
-		loaded_files (Queue):
-		finished (Queue):
+		loaded_files (Queue): MP4 files which have been rsynced to /tmp.
+		finished (Queue): Determines if producer is done.
+		verbose (bool): If true it prints verbose statements to 
+			check the progress of the program
 	Returns:
 	'''
 
@@ -110,21 +114,23 @@ def process_files(loaded_files,finished,verbose):
 			# Perform Music Classification
 			if verbose:
 				print('\n-- Step 2.1 Music Classification --\n')
-			m_obj = Model(f,verbose)
+			m_obj = Model(f,verbose,file_path)
 			m_obj.music_classification()
 
-			if verbose:
-				print('\n-- Step 2.2 Remove mp4 File --\n')
 			# Extract basename of file
 			base = os.path.splitext(os.path.basename(f))
+			if verbose:
+				print('\n-- Step 2.2 Remove mp4 File --\n')
+				print(base)
 			# Load rm arguments
-			args = ["rm","-rf","/tmp/hxm471/video_files/"+base[0]]
+			args = ["rm","-rf",file_path+"/hxm471/video_files/"+base[0]+'.mp4']
 			# Launch rm
 			p = Popen(args, stdout=PIPE, stderr=PIPE)
 			# Determine if error occured
 			output,error = p.communicate()
 			assert p.returncode == 0, error
 
+			# 
 			# Increment counter
 			ctr+=1
 		else:
@@ -140,7 +146,7 @@ def process_files(loaded_files,finished,verbose):
 	if(verbose):
 		display('finished')
 
-def main(job_num:int, verbose:bool):
+def main(job_num:int, verbose:bool, file_path):
 	'''This method runs the music classification and title sequence
 	image based filtering. This completes the first stage of the pipeline.
 	The output is a noisy metadata consisting of:
@@ -164,7 +170,7 @@ def main(job_num:int, verbose:bool):
 		print("\n+++ Step 1: Data ingestion +++\n")
 	
 	# Data
-	d_obj = Data(job_num,verbose)
+	d_obj = Data(job_num,verbose,file_path)
 	files = d_obj.ingestion()
 	
 	if verbose:
@@ -176,9 +182,9 @@ def main(job_num:int, verbose:bool):
 
 	if verbose:
 		print('\n+++ Step 2: Multi-threaded Consumer-Producer +++')
-	producer = Thread(target=load_files, args=[files,loaded_files,finished,verbose]
+	producer = Thread(target=load_files, args=[files,loaded_files,finished,verbose,file_path]
 						,daemon=True)
-	consumer = Thread(target=process_files, args=[loaded_files,finished,verbose]
+	consumer = Thread(target=process_files, args=[loaded_files,finished,verbose,file_path]
 						,daemon=True)
 
 	producer.start()
@@ -196,7 +202,7 @@ def main(job_num:int, verbose:bool):
 if __name__=='__main__':
 
 	args = parseArgs()
-	job_num, verbose = args.job_num, args.verbose
+	job_num, verbose, file_path = args.job_num, args.verbose, args.file_path
 
 	if(verbose):
 		print('\n=== GPU Information ===\n')
@@ -207,8 +213,8 @@ if __name__=='__main__':
 		tf.config.experimental.set_memory_growth(gpu[0], True)
 	if(verbose):
 		print('\n=== run_pipeline_stage1.py: Start ===\n')
-
-	main(int(job_num), verbose)
+		print("TMP File path:",file_path)
+	main(int(job_num), verbose, file_path)
 
 	if(verbose):
 		print('\n=== run_pipeline_stage1.py: Done ===\n')

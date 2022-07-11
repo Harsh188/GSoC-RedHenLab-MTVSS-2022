@@ -21,8 +21,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import constants as const
 
-sys.path.insert(1,'/tmp/hxm471/inaSpeechSegmenter')
-from segmenter import Segmenter, seg2csv
+
+
+from decord import VideoReader
+from decord import gpu 
 
 class Model:
 	"""
@@ -31,10 +33,13 @@ class Model:
 	Various methods are provided to retrieve, manipulate and store data.
 	"""
 
-	def __init__(self,file,verbose):
+	def __init__(self,file,verbose,file_path):
 		self.file=file
 		self.verbose=verbose
 		self.segments=[]
+		self.file_path=file_path
+		sys.path.insert(1,self.file_path+'/hxm471/inaSpeechSegmenter')
+		self.segmenter = __import__("segmenter")
 		pass
 
 	def music_classification(self):
@@ -45,13 +50,13 @@ class Model:
 		if(self.verbose):
 			print("\n-- Step 2.1.1: Initializing Segmenter --\n")
 		# Initialize the segmenter
-		seg = Segmenter(vad_engine=const.VAD_ENGINE, detect_gender=const.DETECT_GENDER, 
+		seg = self.segmenter.Segmenter(vad_engine=const.VAD_ENGINE, detect_gender=const.DETECT_GENDER, 
 				ffmpeg=const.FFMPEG_BINARY, energy_ratio=const.ENERGY_RATIO, 
 				batch_size=const.BATCH_SIZE)
 		if(self.verbose):
 			print("\n-- Step 2.1.2: Checking output directory --\n")
 		# Check output DIR
-		odir = const.TMP_PATH+'splits'
+		odir = self.file_path+'/hxm471/mtvss/data/tmp/splits'
 		assert os.access(odir, os.W_OK), 'Directory %s is not writable!' % odir
 
 
@@ -67,8 +72,8 @@ class Model:
 				print("\nOutput files:\n",output_files)
 				print("\n-- Step 2.1.3: Starting batch process --\n")
 
-			result = seg.batch_process([const.G_PATH+'video_files/'+base[0]+'.mp4'], output_files, 
-				tmpdir=const.G_PATH,verbose=self.verbose, output_format='csv', skipifexist=True)
+			result = seg.batch_process([self.file_path+'hxm471/video_files/'+base[0]+'.mp4'], output_files, 
+				tmpdir=self.file_path,verbose=self.verbose, output_format='csv', skipifexist=True)
 			assert result == 0, "Batch Process Failed!"
 
 		return 
