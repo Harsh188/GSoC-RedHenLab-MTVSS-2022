@@ -12,3 +12,4 @@ mkdocs
 mkdocstrings
 memray
 decord
+py-spy
