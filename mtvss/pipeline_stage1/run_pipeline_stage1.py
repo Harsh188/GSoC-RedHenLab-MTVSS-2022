@@ -23,6 +23,7 @@ import threading
 from threading import Thread
 from queue import Queue
 
+import code, traceback, signal
 import time
 import datetime
 import argparse
@@ -117,6 +118,11 @@ def process_files(loaded_files,finished,verbose,file_path):
 			m_obj = Model(f,verbose,file_path)
 			m_obj.music_classification()
 
+			if verbose:
+				print('\n+++ Step 3: Keyframe Extraction +++')
+				
+			# m_obj.keyframe_extraction()
+
 			# Extract basename of file
 			base = os.path.splitext(os.path.basename(f))
 			if verbose:
@@ -129,7 +135,6 @@ def process_files(loaded_files,finished,verbose,file_path):
 			# Determine if error occured
 			output,error = p.communicate()
 			assert p.returncode == 0, error
-
 			# 
 			# Increment counter
 			ctr+=1
@@ -198,8 +203,23 @@ def main(job_num:int, verbose:bool, file_path):
 	if verbose:
 		display('Consumer has finished\n')
 
+def debug(sig, frame):
+	"""Interrupt running process, and provide a python prompt for
+	interactive debugging."""
+	d={'_frame':frame}         # Allow access to frame object.
+	d.update(frame.f_globals)  # Unless shadowed by global
+	d.update(frame.f_locals)
+
+	i = code.InteractiveConsole(d)
+	message  = "Signal received : entering python shell.\nTraceback:\n"
+	message += ''.join(traceback.format_stack(frame))
+	i.interact(message)
+
+def listen():
+	signal.signal(signal.SIGUSR1, debug)  # Register handler
 
 if __name__=='__main__':
+	listen()
 
 	args = parseArgs()
 	job_num, verbose, file_path = args.job_num, args.verbose, args.file_path

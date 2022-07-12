@@ -32,7 +32,6 @@ class Model:
 	and output of data related to the stage one of the pipeline. 
 	Various methods are provided to retrieve, manipulate and store data.
 	"""
-
 	def __init__(self,file,verbose,file_path):
 		self.file=file
 		self.verbose=verbose
@@ -77,3 +76,19 @@ class Model:
 			assert result == 0, "Batch Process Failed!"
 
 		return 
+
+	def keyframe_extraction(self):
+		'''This method is used to extract keyframes from music intervals.
+		It uses an open-source software called Decord to efficiently seek
+		and retrieve frames for specified music intervals.
+
+		Args:
+
+		Returns:
+		'''
+		if(self.verbose):
+			print("\n-- Step 3.1: Initializing Decord --\n")
+		# Initialize the VideoReader
+		# vr = VideoReader(self.file, ctx=gpu(0))
+		# Get metadata
+		pass
