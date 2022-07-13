@@ -17,6 +17,9 @@ import os
 import sys
 import warnings
 
+import pandas as pd
+import numpy as np
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import constants as const
@@ -35,11 +38,20 @@ class Model:
 	def __init__(self,file,verbose,file_path):
 		self.file=file
 		self.verbose=verbose
-		self.segments=[]
 		self.file_path=file_path
 		sys.path.insert(1,self.file_path+'/hxm471/inaSpeechSegmenter')
 		self.segmenter = __import__("segmenter")
+		self.csv_path=None
 		pass
+
+	def set_csv_path(self,csv_path):
+		'''Setter method.
+
+		Args:
+			csv_path (str): path to where the csv is stored.
+		'''
+		self.csv_path = csv_path
+
 
 	def music_classification(self):
 		'''Method to invoke InaSpeechSegmenter and produce segments of
@@ -73,8 +85,9 @@ class Model:
 
 			result = seg.batch_process([self.file_path+'hxm471/video_files/'+base[0]+'.mp4'], output_files, 
 				tmpdir=self.file_path,verbose=self.verbose, output_format='csv', skipifexist=True)
-			assert result == 0, "Batch Process Failed!"
+			assert result[0] == 0, "Batch Process Failed!"
 
+			self.csv_path = result[1][-1]
 		return 
 
 	def keyframe_extraction(self):
@@ -88,7 +101,17 @@ class Model:
 		'''
 		if(self.verbose):
 			print("\n-- Step 3.1: Initializing Decord --\n")
-		# Initialize the VideoReader
-		# vr = VideoReader(self.file, ctx=gpu(0))
+			print("csv_path:",csv_path)
 		# Get metadata
+		df = pd.read_csv(self.csv_path)
+		# Initialize the VideoReader
+		vr = VideoReader(self.file_path, ctx=gpu(0))
+		frame_num = len(vr)
+		if(self.verbose):
+			print("Length of vid:",frame_num)
+		idx=0
+		for i in frame_num:
+			timestamp = vr.get_frame_timestamp(i)
+			mtimestamp = df.iloc[idx,[1,2]]
+			difftime = timestamp-mtimestamp
 		pass

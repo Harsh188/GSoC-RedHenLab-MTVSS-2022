@@ -121,7 +121,7 @@ def process_files(loaded_files,finished,verbose,file_path):
 			if verbose:
 				print('\n+++ Step 3: Keyframe Extraction +++')
 				
-			# m_obj.keyframe_extraction()
+			m_obj.keyframe_extraction()
 
 			# Extract basename of file
 			base = os.path.splitext(os.path.basename(f))
