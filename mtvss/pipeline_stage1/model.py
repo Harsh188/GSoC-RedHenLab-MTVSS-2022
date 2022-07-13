@@ -16,6 +16,7 @@ import glob
 import os
 import sys
 import warnings
+import random
 
 import pandas as pd
 import numpy as np
@@ -27,7 +28,7 @@ import constants as const
 
 
 from decord import VideoReader
-from decord import gpu 
+from decord import gpu, cpu
 
 class Model:
 	"""
@@ -51,7 +52,6 @@ class Model:
 			csv_path (str): path to where the csv is stored.
 		'''
 		self.csv_path = csv_path
-
 
 	def music_classification(self):
 		'''Method to invoke InaSpeechSegmenter and produce segments of
@@ -90,28 +90,60 @@ class Model:
 			self.csv_path = result[1][-1]
 		return 
 
-	def keyframe_extraction(self):
+	def keyframe_extraction(self, gpu:bool):
 		'''This method is used to extract keyframes from music intervals.
 		It uses an open-source software called Decord to efficiently seek
 		and retrieve frames for specified music intervals.
 
 		Args:
-
-		Returns:
+			gpu (bool): Indicate if Decord should use GPU.
 		'''
 		if(self.verbose):
 			print("\n-- Step 3.1: Initializing Decord --\n")
-			print("csv_path:",csv_path)
+			print("csv_path:",self.csv_path)
+			print("gpu enabled",gpu)
 		# Get metadata
 		df = pd.read_csv(self.csv_path)
+		
 		# Initialize the VideoReader
-		vr = VideoReader(self.file_path, ctx=gpu(0))
+		if gpu:
+			vr = VideoReader(self.file_path, ctx=gpu(0))
+		else:
+			vr = VideoReader(self.file_path, ctx=cpu(0))
 		frame_num = len(vr)
+
 		if(self.verbose):
 			print("Length of vid:",frame_num)
+		
 		idx=0
-		for i in frame_num:
+		# for i in range(df.index):
+		# 	mtimestamp = df.iloc[i,[1,2]]
+		frames = []
+		for i in range(0,frame_num,24):
+			if(idx>=df.shape[0]):
+				break
+
 			timestamp = vr.get_frame_timestamp(i)
-			mtimestamp = df.iloc[idx,[1,2]]
+			mtimestamp = df.iloc[idx,[1,2]].unique()
+
 			difftime = timestamp-mtimestamp
-		pass
+			if(difftime[0]>0 and difftime[1]<0):
+				if(idx>len(frames)-1):
+					frames.append([i,i])
+				elif(frames[idx][1]<i):
+					frames[idx][1]=i
+			elif(difftime[0]<0):
+				continue
+			else:
+				idx+=1
+				continue
+
+		images_batch = []
+		images=[]
+		for i in frames:
+		    for j in range(3):
+		        rand = round(random.randint(i[0],i[1]),2)
+		        images_batch.append(rand)
+		print(images_batch)
+		images = vr.get_batch(images_batch).asnumpy()
+		return images
