@@ -33,10 +33,14 @@ class Data:
 	Various methods are provided to retrieve, manipulate and store data.
 	"""
 
-	def __init__(self, job_num:int, verbose:bool,file_path):
+	def __init__(self, job_num:int, verbose:bool, file_path):
 		self.job_num = job_num
 		self.verbose = verbose
 		self.file_path = file_path
+
+	def store_keyframes_csv(self,csv_out_path:str,data):
+		pass
+
 
 	def ingestion(self) -> np.ndarray:
 		"""The ingestion method is used to pull in all the mp4 files 

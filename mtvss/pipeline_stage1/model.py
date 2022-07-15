@@ -21,6 +21,8 @@ import random
 import pandas as pd
 import numpy as np
 
+from data import Data 
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import constants as const
@@ -118,6 +120,7 @@ class Model:
 		idx=0
 		# for i in range(df.index):
 		# 	mtimestamp = df.iloc[i,[1,2]]
+		t_list = []
 		frames = []
 		for i in range(0,frame_num,24):
 			if(idx>=df.shape[0]):
@@ -130,8 +133,10 @@ class Model:
 			if(difftime[0]>0 and difftime[1]<0):
 				if(idx>len(frames)-1):
 					frames.append([i,i])
+					t_list.append([timestamp[0],timestamp[0]])
 				elif(frames[idx][1]<i):
 					frames[idx][1]=i
+					t_list[idx][1]=timestamp[0]
 			elif(difftime[0]<0):
 				continue
 			else:
@@ -144,6 +149,13 @@ class Model:
 		    for j in range(3):
 		        rand = round(random.randint(i[0],i[1]),2)
 		        images_batch.append(rand)
+
 		print(images_batch)
 		images = vr.get_batch(images_batch).asnumpy()
-		return images
+			
+		d_obj = Data(None,True,self.file_path)
+		csv_out_path = self.csv_path[:-4]+'_keyframes.csv'
+		d_obj.store_keyframes_csv(self.csv_path,(images,images_batch,t_list))
+
+		return images, images_batch, t_list
+
