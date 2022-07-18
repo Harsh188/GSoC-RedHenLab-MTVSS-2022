@@ -55,7 +55,7 @@ class Model:
 		if(self.verbose):
 			print("\n-- Step 2.1.2: Checking output directory --\n")
 		# Check output DIR
-		odir = self.file_path+'/hxm471/mtvss/data/tmp/splits'
+		odir = '/scratch/users/hxm471/tmp'
 		assert os.access(odir, os.W_OK), 'Directory %s is not writable!' % odir
 
 
@@ -72,8 +72,8 @@ class Model:
 				print("\n-- Step 2.1.3: Starting batch process --\n")
 
 			result = seg.batch_process([self.file_path+'/hxm471/video_files/'+base[0]+'.mp4'], output_files, 
-				tmpdir=self.file_path,verbose=self.verbose, output_format='csv', skipifexist=True)
-			assert result == 0, "Batch Process Failed!"
+				tmpdir=self.file_path,verbose=self.verbose, output_format='csv', skipifexist=False)
+			assert result[0] == 0, "Batch Process Failed!"
 
 		return 
 
