@@ -38,8 +38,23 @@ class Data:
 		self.verbose = verbose
 		self.file_path = file_path
 
-	def store_keyframes_csv(self,csv_out_path:str,data):
-		pass
+	def store_keyframes_txt(self,dir_path:str,txt_out_path:str,data:tuple):
+		np_path = os.path.join(dir_path,os.path.basename(txt_out_path)[:-4])
+		if(self.verbose):
+			print('\n--- Saving images ---\n')
+			print('Path:',np_path)
+		np.save(np_path,data[0])
+		if(self.verbose):
+			print('\n--- Saving Images Metadata ---\n')
+			print('Path:',txt_out_path)
+		with open(txt_out_path, 'w') as f:
+			for i in range(len(data[1])):
+				f.write('Image Frames: ')
+				f.write(' '.join(str(e) for e in data[1][i]))
+				f.write(' Image Timestamps: ')
+				f.write(' '.join(str(e) for e in data[2][i]))
+				f.write('\n')
+		
 
 
 	def ingestion(self) -> np.ndarray:

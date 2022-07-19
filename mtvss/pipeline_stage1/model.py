@@ -92,7 +92,7 @@ class Model:
 			self.csv_path = result[1][-1]
 		return 
 
-	def keyframe_extraction(self, gpu:bool):
+	def keyframe_extraction(self, gpu:bool,file_spec:bool):
 		'''This method is used to extract keyframes from music intervals.
 		It uses an open-source software called Decord to efficiently seek
 		and retrieve frames for specified music intervals.
@@ -106,6 +106,13 @@ class Model:
 			print("gpu enabled",gpu)
 		# Get metadata
 		df = pd.read_csv(self.csv_path)
+
+		if(not file_spec):
+			BASE = os.path.basename(self.csv_path)
+			YEAR = BASE[0:4]
+			MONTH = BASE[0:7]
+			DAY = BASE[0:10]
+			self.file_path = os.path.join(const.ROS_PATH,YEAR,MONTH,DAY, BASE[:-3]+'mp4')
 		
 		# Initialize the VideoReader
 		if gpu:
@@ -145,17 +152,23 @@ class Model:
 
 		images_batch = []
 		images=[]
+		idx=0
 		for i in frames:
-		    for j in range(3):
-		        rand = round(random.randint(i[0],i[1]),2)
-		        images_batch.append(rand)
+			images_batch.append([])
+			for j in range(3):
+				rand = round(random.randint(i[0],i[1]),2)
+				images_batch[idx].append(rand)
+			idx+=1
 
-		print(images_batch)
-		images = vr.get_batch(images_batch).asnumpy()
-			
+		# To flatten a list of lists
+		images_batch_flat = [x for xs in images_batch for x in xs]
+		images = vr.get_batch(images_batch_flat).asnumpy()
+
 		d_obj = Data(None,True,self.file_path)
-		csv_out_path = self.csv_path[:-4]+'_keyframes.csv'
-		d_obj.store_keyframes_csv(self.csv_path,(images,images_batch,t_list))
+		txt_out_path = os.path.join('/scratch/users/hxm471/tmp/keyframes/',
+				os.path.basename(self.csv_path)[:-4]+'_keyframes.txt')
+		dir_path = '/scratch/users/hxm471/tmp/keyframes/'
+		d_obj.store_keyframes_txt(dir_path,txt_out_path,(images,images_batch,t_list))
 
 		return images, images_batch, t_list
 
