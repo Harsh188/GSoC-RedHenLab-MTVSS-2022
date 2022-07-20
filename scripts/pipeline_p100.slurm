@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p gpu
-#SBATCH -C gpu4v100
+#SBATCH -C gpup100
 #SBATCH --gres=gpu:1
-#SBATCH --mem=30gb		# Assign 16gb memory; default in 1gb
-#SBATCH -c 1
+#SBATCH --mem=30gb              # Assign 16gb memory; default in 1gb
+#SBATCH -c 2
 #SBATCH -o /scratch/users/hxm471/jobs/arrayjob_%A_%a.o
-#SBATCH --time=00:05:00
+#SBATCH --time=09:00:00
 #SBATCH -n 1
 
 # Load Module
@@ -19,7 +19,7 @@ rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_
 # sbcast /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/mtvss /tmp/$USER/
 
 # Copy inaSpeechSegmenter library
-rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/inaSpeechSegmenter/inaSpeechSegmenter $TMPDIR/$USER/
+rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/inaSpeechSegmenter/inaSpeechSegmenter $TMPDIR/$$
 # sbcast /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/inaSpeechSegmenter/inaSpeechSegmenter /tmp/$USER/mtvss
 
 # Change directory into $USER
@@ -35,10 +35,11 @@ mkdir /scratch/users/$USER/jobs/$SLURM_ARRAY_JOB_ID
 mv /scratch/users/$USER/jobs/*_$SLURM_ARRAY_JOB_ID_* /scratch/users/$USER/jobs/$SLURM_ARRAY_JOB_ID
 
 # Run singularity container -- Pipeline Stage 1 -- Music Classification
-srun singularity exec -e --nv --bind /scratch/users/hxm471/,/home/hxm471/,$TMPDIR/$USER/ /scratch/users/$USER/mtvss_dev6.sif python3 $TMPDIR/$USER/mtvss/pipeline_stage1/run_pipeline_stage1.py --job_num=${SLURM_ARRAY_TASK_ID} --model="music" --verbose=True --file_path=${TMPDIR} > /scratch/users/$USER/jobs/$SLURM_ARRAY_JOB_ID/py_output_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.txt
+srun singularity exec -e --nv --bind /scratch/users/hxm471/,/home/hxm471/,$TMPDIR/$USER/ /scratch/users/$USER/mtvss_dev6.sif python3 $TMPDIR$
 
 # Transfer features & CSVs
 rsync -az $TMPDIR/$USER/mtvss/data/tmp/splits hpc3:/mnt/rds/redhen/gallina/home/hxm471/
 
 # Remove temporary files
 rm -f -r "$TMPDIR"/*
+

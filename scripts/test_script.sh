@@ -14,6 +14,9 @@ rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_
 rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/inaSpeechSegmenter/inaSpeechSegmenter /tmp/$USER/
 # sbcast /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/inaSpeechSegmenter/inaSpeechSegmenter /tmp/$USER/mtvss
 
+# Copy decord library
+rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/decord/ /tmp/$USER/
+
 # Change directory into $USER
 cd /tmp/$USER/
 
@@ -39,7 +42,7 @@ mkdir /tmp/$USER/video_files
 # done < /tmp/$USER/mtvss/data/tmp/batch_cat1.txt
 
 # Run singularity container -- Pipeline Stage 1 -- Music Classification
-singularity exec -e --nv -B /tmp/$USER/ /scratch/users/$USER/mtvss_dev4.sif python3 -m memray run /tmp/$USER/mtvss/pipeline_stage1/run_pipeline_stage1.py --job_num=0 --model="music" --verbose=True
+singularity exec -e --nv -B /tmp/$USER/ /scratch/users/$USER/mtvss_dev5.sif python3 -m memray run /tmp/$USER/mtvss/pipeline_stage1/run_pipeline_stage1.py --job_num=0 --model="music" --verbose=True
 
 # Remove temporary files
 # rm -f -r /tmp/$USER/

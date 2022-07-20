@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -p gpu
-#SBATCH -C gpu4v100
+#SBATCH -C gpu2080
 #SBATCH --gres=gpu:1
-#SBATCH --mem=30gb		# Assign 16gb memory; default in 1gb
-#SBATCH -c 1
+#SBATCH --mem=16gb              # Assign 16gb memory; default in 1gb
+#SBATCH -c 2
 #SBATCH -o /scratch/users/hxm471/jobs/arrayjob_%A_%a.o
-#SBATCH --time=00:05:00
+#SBATCH --time=09:00:00
 #SBATCH -n 1
 
 # Load Module
@@ -19,8 +19,8 @@ rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_
 # sbcast /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/mtvss /tmp/$USER/
 
 # Copy inaSpeechSegmenter library
-rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/inaSpeechSegmenter/inaSpeechSegmenter $TMPDIR/$USER/
-# sbcast /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/inaSpeechSegmenter/inaSpeechSegmenter /tmp/$USER/mtvss
+rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/inaSpeechSegmenter/inaSpeechSegm$
+# sbcast /mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_Segmentation/inaSpeechSegmenter/inaSpeechSegmenter $
 
 # Change directory into $USER
 cd $TMPDIR/$USER/
@@ -42,3 +42,5 @@ rsync -az $TMPDIR/$USER/mtvss/data/tmp/splits hpc3:/mnt/rds/redhen/gallina/home/
 
 # Remove temporary files
 rm -f -r "$TMPDIR"/*
+
+
