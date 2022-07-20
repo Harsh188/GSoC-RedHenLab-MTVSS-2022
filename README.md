@@ -72,7 +72,7 @@ TODO:
 	- [x] Audio Extraction
 	- [x] Perform music segmentation
 	- [x] Extract keyframes
-	- [ ] Manually annotate title sequences
+	- [x] Manually annotate title sequences
 	- [ ] Train keyframe classifier
 - [ ] Evaluation 1
 - [ ] Pipeline Stage Two
