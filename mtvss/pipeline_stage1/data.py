@@ -38,14 +38,38 @@ class Data:
 		self.verbose = verbose
 		self.file_path = file_path
 
+	def check_exist(self, file:str):
+		'''Checks if the file has been processed fully or partially or not at all.
+		Args:
+			file (str): Basename of the file
+		Returns:
+			status (bool): True if file has been processed fully. False otherwise. 
+		'''
+		if self.verbose:
+			print("\n--- Starting check_exist ---")
+		# Load in the status information on the processed files
+		matatracker_path = os.path.join(os.getcwd(),'mtvss/data/tmp/metadata_tracker.csv')
+		metatracker_df = pd.read_csv(matatracker_path)
+
+		# Determine if file has been processed or not
+		if(file in metatracker_df['File_Name'].unique()):
+			idx = metatracker_df.index[metatracker_df['File_Name']==file].tolist()[0]
+			if(metatracker_df['Stage-1-Music'].loc[idx]=='Done'):
+				if self.verbose:
+					print('# File processed! SKIPPING')
+				return True
+		else:
+			return False
+
 	def store_keyframes_txt(self,dir_path:str,txt_out_path:str,data:tuple):
 		np_path = os.path.join(dir_path,os.path.basename(txt_out_path)[:-4])
 		if(self.verbose):
-			print('\n--- Saving images ---\n')
+			print('\n--- Starting Store Keyframe ---')
+			print('\n## Saving images #\n')
 			print('Path:',np_path)
 		np.save(np_path,data[0])
 		if(self.verbose):
-			print('\n--- Saving Images Metadata ---\n')
+			print('\n## Saving Images Metadata ##\n')
 			print('Path:',txt_out_path)
 		with open(txt_out_path, 'w') as f:
 			for i in range(len(data[1])):
@@ -54,8 +78,6 @@ class Data:
 				f.write(' Image Timestamps: ')
 				f.write(' '.join(str(e) for e in data[2][i]))
 				f.write('\n')
-		
-
 
 	def ingestion(self) -> np.ndarray:
 		"""The ingestion method is used to pull in all the mp4 files 
@@ -68,7 +90,8 @@ class Data:
 			batches (List): List of mp4 files.
 		"""
 
-		batch_path = self.file_path+"/hxm471/mtvss/data/tmp/batch_cat1.npy"
+		batch_path = os.path.join(os.getcwd(),'mtvss/data/tmp/batch_cat1.npy')
+
 		# Check if Batched file exists
 		if(not os.path.isfile(batch_path)):
 			raise Exception("Batch file {0} does not exist!".format(batch_path))

@@ -59,7 +59,6 @@ class Model:
 		'''Method to invoke InaSpeechSegmenter and produce segments of
 		noise/music/speech intervals.
 		'''
-
 		if(self.verbose):
 			print("\n-- Step 2.1.1: Initializing Segmenter --\n")
 		# Initialize the segmenter
@@ -72,38 +71,71 @@ class Model:
 		odir = self.file_path+'/hxm471/mtvss/data/tmp/splits'
 		assert os.access(odir, os.W_OK), 'Directory %s is not writable!' % odir
 
-
 		with warnings.catch_warnings():
 			warnings.simplefilter("ignore")
 
 			# Extract basename of file
 			base = os.path.splitext(os.path.basename(self.file))
-			output_files = [os.path.join(odir, base[0] + '.' + 'csv')]
+			output_files = [os.path.join(const.SCRATCH_PATH,'tmp',base[0] + '.' + 'csv')]
+			# Save CSV Path
+			self.csv_path = os.path.join(const.SCRATCH_PATH,'tmp',base[0]+'.csv')
 
 			if(self.verbose):
 				print("\nbase files:\n",base[0])
 				print("\nOutput files:\n",output_files)
-				print("\n-- Step 2.1.3: Starting batch process --\n")
+				print("\n-- Step 2.1.3: Check if segmentation exists --\n")
 
-			result = seg.batch_process([self.file_path+'hxm471/video_files/'+base[0]+'.mp4'], output_files, 
-				tmpdir=self.file_path,verbose=self.verbose, output_format='csv', skipifexist=True)
+			# Store start time
+			start=0
+			# Check for segmentation
+			for f in glob.glob(const.SCRATCH_PATH+'tmp/'+base[0]+'*_loge.npy'):
+				split_f = f[:-4].split('_')
+				print(split_f)
+				if(int(split_f[-3])==int(split_f[-2])):
+					# File has been processed
+					if self.verbose:
+						print("File has been processed!! SKIPPING to next stage!")
+					self.file_path = self.file_path+'/hxm471/video_files/'+base[0]+'.mp4'
+					return
+				start=split_f[-3]
+			
+			if self.verbose:
+				print("\n-- Step 2.1.4: Starting batch process --\n")
+				print("Start Time:",start)
+			# Start Batch Process
+			result = seg.batch_process([self.file_path+'/hxm471/video_files/'+base[0]+'.mp4'], output_files, 
+				tmpdir=self.file_path,verbose=self.verbose, output_format='csv', skipifexist=False,
+				start_sec=start)
 			assert result[0] == 0, "Batch Process Failed!"
-
-			self.csv_path = result[1][-1]
+			self.file_path = self.file_path+'/hxm471/video_files/'+base[0]+'.mp4'
 		return 
 
-	def keyframe_extraction(self, gpu:bool,file_spec:bool):
+	def keyframe_extraction(self, gpu_enable:bool,file_spec:bool):
 		'''This method is used to extract keyframes from music intervals.
 		It uses an open-source software called Decord to efficiently seek
 		and retrieve frames for specified music intervals.
 
 		Args:
-			gpu (bool): Indicate if Decord should use GPU.
+			gpu_enable (bool): Indicate if Decord should use GPU.
+			file_spec (bool): Indicate if the file_path is specified.
+		Returns:
+			images (np.ndarray): keyframes stored as np.ndarray.
+			images_batch (list): Python list containing keyframe to frame mapping.
+			t_list (list): Python list containing frame to timestamp range mapping.
 		'''
+
 		if(self.verbose):
 			print("\n-- Step 3.1: Initializing Decord --\n")
 			print("csv_path:",self.csv_path)
-			print("gpu enabled",gpu)
+			print("gpu enabled",gpu_enable)
+
+		txt_out_path = os.path.join(const.SCRATCH_PATH+'keyframes/',
+				os.path.basename(self.csv_path)[:-4]+'_keyframes.txt')
+		dir_path = '/scratch/users/hxm471/keyframes/'
+
+		if(os.path.exists(txt_out_path)):
+			return
+
 		# Get metadata
 		df = pd.read_csv(self.csv_path)
 
@@ -115,7 +147,7 @@ class Model:
 			self.file_path = os.path.join(const.ROS_PATH,YEAR,MONTH,DAY, BASE[:-3]+'mp4')
 		
 		# Initialize the VideoReader
-		if gpu:
+		if gpu_enable:
 			vr = VideoReader(self.file_path, ctx=gpu(0))
 		else:
 			vr = VideoReader(self.file_path, ctx=cpu(0))
@@ -165,10 +197,6 @@ class Model:
 		images = vr.get_batch(images_batch_flat).asnumpy()
 
 		d_obj = Data(None,True,self.file_path)
-		txt_out_path = os.path.join('/scratch/users/hxm471/tmp/keyframes/',
-				os.path.basename(self.csv_path)[:-4]+'_keyframes.txt')
-		dir_path = '/scratch/users/hxm471/tmp/keyframes/'
 		d_obj.store_keyframes_txt(dir_path,txt_out_path,(images,images_batch,t_list))
 
 		return images, images_batch, t_list
-

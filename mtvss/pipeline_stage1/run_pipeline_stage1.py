@@ -53,7 +53,7 @@ def display(msg):
 	print(f'{processname}\\{threadname}: {msg}')
 
 # Producer
-def load_files(files,loaded_files,finished,verbose,file_path):
+def load_files(files,loaded_files,finished,verbose,file_path,d_obj):
 	'''Method to load the mp4 files using multi-threading. This method
 	acts as the producer.
 
@@ -71,6 +71,8 @@ def load_files(files,loaded_files,finished,verbose,file_path):
 	ctr=0
 	# Loop through all the files in the batch
 	for f in files:
+		if(d_obj.check_exist(os.path.basename(f[:-4]))):
+			continue
 		if (verbose):
 			display(f'Producing {ctr}: {f}')
 
@@ -118,15 +120,15 @@ def process_files(loaded_files,finished,verbose,file_path):
 			m_obj = Model(f,verbose,file_path)
 			m_obj.music_classification()
 
-			if verbose:
-				print('\n+++ Step 3: Keyframe Extraction +++')
-				
-			m_obj.keyframe_extraction()
+			# Perform Keyframe Extraction
+			# if verbose:
+			# 	print('\n\n+++ Step 3: Keyframe Extraction +++\n\n')
+			# m_obj.keyframe_extraction(gpu_enable=False,file_spec=True)
 
 			# Extract basename of file
 			base = os.path.splitext(os.path.basename(f))
 			if verbose:
-				print('\n-- Step 2.2 Remove mp4 File --\n')
+				print('\n\n+++ Step 4: Remove mp4 File +++\n\n')
 				print(base)
 			# Load rm arguments
 			args = ["rm","-rf",file_path+"/hxm471/video_files/"+base[0]+'.mp4']
@@ -172,7 +174,7 @@ def main(job_num:int, verbose:bool, file_path):
 
 	'''
 	if(verbose):
-		print("\n+++ Step 1: Data ingestion +++\n")
+		print("\n\n+++ Step 1: Data ingestion +++\n\n")
 	
 	# Data
 	d_obj = Data(job_num,verbose,file_path)
@@ -186,8 +188,8 @@ def main(job_num:int, verbose:bool, file_path):
 	finished = Queue()
 
 	if verbose:
-		print('\n+++ Step 2: Multi-threaded Consumer-Producer +++')
-	producer = Thread(target=load_files, args=[files,loaded_files,finished,verbose,file_path]
+		print('\n\n+++ Step 2: Multi-threaded Consumer-Producer +++\n\n')
+	producer = Thread(target=load_files, args=[files,loaded_files,finished,verbose,file_path,d_obj]
 						,daemon=True)
 	consumer = Thread(target=process_files, args=[loaded_files,finished,verbose,file_path]
 						,daemon=True)
