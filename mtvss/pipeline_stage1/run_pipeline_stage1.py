@@ -117,7 +117,7 @@ def process_files(loaded_files,finished,verbose,file_path):
 			# Perform Music Classification
 			if verbose:
 				print('\n-- Step 2.1 Music Classification --\n')
-			m_obj = Model(f,verbose,file_path)
+			m_obj = Model(f,verbose,file_path,run_on_mnt=False)
 			m_obj.music_classification()
 
 			# Perform Keyframe Extraction

@@ -38,11 +38,15 @@ class Model:
 	and output of data related to the stage one of the pipeline. 
 	Various methods are provided to retrieve, manipulate and store data.
 	"""
-	def __init__(self,file,verbose,file_path):
+	def __init__(self,file,verbose,file_path,run_on_mnt:bool):
 		self.file=file
 		self.verbose=verbose
 		self.file_path=file_path
-		sys.path.insert(1,self.file_path+'/hxm471/inaSpeechSegmenter')
+		if(not run_on_mnt):
+			sys.path.insert(1,self.file_path+'/hxm471/inaSpeechSegmenter')
+		else:
+			sys.path.insert(1,const.H_PROJ_PATH+'/inaSpeechSegmenter')
+
 		self.segmenter = __import__("segmenter")
 		self.csv_path=None
 		pass
