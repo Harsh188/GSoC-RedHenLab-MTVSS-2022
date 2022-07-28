@@ -33,3 +33,6 @@ mkdir /scratch/users/$USER/jobs/interactive
 
 # Run singularity container -- Pipeline Stage 1 -- Training Image Classifier
 singularity exec -e --nv --bind /scratch/users/hxm471/,/home/hxm471/,$TMPDIR/$USER/ /scratch/users/$USER/mtvss_dev6.sif python3 $TMPDIR/$USER/mtvss/pipeline_stage1/PretrainedResNet50V2.py
+
+# Copy model outputs to scratch
+rsync -az $TMPDIR/$USER/model_output hpc3:/scratch/users/hxm471

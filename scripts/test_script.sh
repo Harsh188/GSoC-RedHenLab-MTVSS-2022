@@ -16,11 +16,17 @@ rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/RedHenLab-Multimodal_TV_Show_
 # Copy image dataset
 rsync -az hpc3:/mnt/rds/redhen/gallina/home/hxm471/image_dataset $TMPDIR/$USER/
 
+# Remove unknown class
+rm -rf $TMPDIR/$USER/image_dataset/unknown
+
 # Change directory into $USER
 cd $TMPDIR/$USER/
 
 # Make temp directory to store copies of mp4 files
 mkdir $TMPDIR/$USER/video_files
+
+# Make temp directory to store model checkpoints
+mkdir $TMPDIR/$USER/checkpoints
 
 # Make directory to store output
 mkdir /scratch/users/$USER/jobs/interactive
