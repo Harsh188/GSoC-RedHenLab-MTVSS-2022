@@ -22,6 +22,7 @@ import random
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
@@ -61,6 +62,45 @@ class PretrainedResNet50V2:
 		# Set verbose
 		self.verbose=verbose
 
+	def build_model(self):
+		'''Method to build the model.
+		'''
+		# Define number of classes
+		num_classes = 2
+		
+		# Define Data Augmentation layer
+		data_augmentation = tf.keras.Sequential([
+		  tf.keras.layers.RandomFlip('horizontal'),
+		  tf.keras.layers.RandomRotation(0.2),
+		])
+
+		# Define Rescaling layer
+		rescale = tf.keras.layers.Rescaling(1./255)
+
+		# Define global avg pooling
+		global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
+		feature_batch_average = global_average_layer(self.feature_batch)
+		print(feature_batch_average.shape)
+
+		# Define prediction layer
+		prediction_layer = tf.keras.Sequential([
+			tf.keras.layers.Dense(32, activation='relu'),
+			tf.keras.layers.Dense(num_classes)
+		])
+		prediction_batch = prediction_layer(feature_batch_average)
+		print(prediction_batch.shape)
+
+		# Build model
+		inputs = tf.keras.Input(shape=(180,180,3))
+		x = data_augmentation(inputs)
+		x = preprocess_input(x)
+		x = self.basemodel(x, training=False)
+		x = global_average_layer(x)
+		x = tf.keras.layers.Dropout(0.2)(x)
+		outputs = prediction_layer(x)
+
+		# Set model
+		self.model = tf.keras.Model(inputs,outputs)
 
 	def load_dataset(self, dataset_path):
 		'''This method loads in the jpeg images for training.
@@ -116,65 +156,92 @@ class PretrainedResNet50V2:
 
 		return train_ds,val_ds
 
+	def save_plots(self, history, out_path):
+		'''Method to create epoch vs accuracy and epoch vs loss plots
+		and save them.
+
+		Args:
+			history (History): History object from tensorflow.
+			out_path (str): Path to store the figures.
+		'''
+
+		# Load in all the values from history
+		training_loss = history.history['loss']
+		test_loss = history.history['val_loss']
+		training_acc = history.history['accuracy']
+		test_acc = history.history['val_accuracy']
+		
+		# Get the epoch count
+		epoch_count = [i for i in range(1,history.params['epochs']+1)]
+		
+		if self.verbose:
+			print("training_loss",training_loss)
+			print("test_loss",test_loss)
+			print("training_acc",training_acc)
+			print("test_acc",test_acc)
+			print("epoch_count",epoch_count)
+
+		# Visualize loss history
+		plt.plot(epoch_count, training_loss, 'r--')
+		plt.plot(epoch_count, test_loss, 'b-')
+		plt.legend(['Training Loss', 'Test Loss'])
+		plt.xlabel('Epoch')
+		plt.ylabel('Loss')
+		plt.show();
+
+
 	def train(self):
 		'''
 		'''
 
+		# Get train and validation splits
 		train_ds,val_ds = self.load_dataset(None)
 
-		num_classes = 2
+		# Build the model
+		self.build_model()
 
-		# Define Data Augmentation layer
-		data_augmentation = tf.keras.Sequential([
-		  tf.keras.layers.RandomFlip('horizontal'),
-		  tf.keras.layers.RandomRotation(0.2),
-		])
-
-		# Define Rescaling layer
-		rescale = tf.keras.layers.Rescaling(1./255)
-
-		# Define global avg pooling
-		global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
-		feature_batch_average = global_average_layer(self.feature_batch)
-		print(feature_batch_average.shape)
-
-		# Define prediction layer
-		prediction_layer = tf.keras.Sequential([
-			tf.keras.layers.Dense(32, activation='relu'),
-			tf.keras.layers.Dense(num_classes)
-		])
-		prediction_batch = prediction_layer(feature_batch_average)
-		print(prediction_batch.shape)
-
-
-		# Build model
-		inputs = tf.keras.Input(shape=(180,180,3))
-		x = data_augmentation(inputs)
-		x = preprocess_input(x)
-		x = self.basemodel(x, training=False)
-		x = global_average_layer(x)
-		x = tf.keras.layers.Dropout(0.2)(x)
-		outputs = prediction_layer(x)
-
-		self.model = tf.keras.Model(inputs,outputs)
-
+		# Compile the model
 		self.model.compile(
 			optimizer='adam',
 			loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
 			metrics=['accuracy']
 		)
 
+		# Print the model summary
 		print(self.model.summary())
 
-		self.model.fit(
+		# Start training
+		history = self.model.fit(
 			train_ds,
 			validation_data=val_ds,
-			epochs=20
+			epochs=2
 		)
-		pass
+		
+		# Save the model
+		print(os.path.join(os.getcwd(),'model_output'))
+		if (not os.path.exists(os.path.join(os.getcwd(),'model_output'))):
+			os.mkdir(os.path.join(os.getcwd(),'model_output'))
+		checkpoint_dir = os.path.join(os.getcwd(),'model_output/pretrainedResNet50V2')
 
-	def predict(self):
-		pass
+		# Save the weights
+		self.model.save_weights(checkpoint_dir)
+
+		# Save plots
+		self.save_plots(history,checkpoint_dir)
+
+
+	def predict(self,data):
+		'''
+		'''
+		try:
+			self.build_model()
+			checkpoint_dir = os.path.join(os.getcwd(),'/model_output/pretrainedResNet50V2')
+			self.model.load_weights(checkpoint_dir)
+		except Exception as e:
+			print(e)
+			pass
+		prediction = self.model.predict(data)
+		print("prediction:",prediction)
 
 if __name__=='__main__':
 	print('\n=== GPU Information ===\n')
