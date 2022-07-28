@@ -71,19 +71,21 @@ def load_files(files,loaded_files,finished,verbose,file_path,d_obj):
 	ctr=0
 	# Loop through all the files in the batch
 	for f in files:
-		if(d_obj.check_exist(os.path.basename(f[:-4]))):
+		# Check the progress status of current file
+		status = d_obj.check_exist(os.path.basename(f[:-4]))
+		if(status==1):
 			continue
 		if (verbose):
 			display(f'Producing {ctr}: {f}')
 
 		# Load rsync arguments
-		args = ["rsync","-e","ssh","-az","hpc4:"+str(f),file_path+"/hxm471/video_files"]
+		args = ["rsync","-e","ssh","-az","hpc4:"+str(f),file_path+"/video_files"]
 		# Launch rsync
 		p = Popen(args, stdout=PIPE, stderr=PIPE)
 		# Determine if error occured
 		output,error = p.communicate()
 		assert p.returncode == 0, error
-		# Add rsynced file to Queue
+		# Add file to Queue
 		loaded_files.put(f)
 		ctr+=1
 
@@ -93,7 +95,7 @@ def load_files(files,loaded_files,finished,verbose,file_path,d_obj):
 		display('finished')
 
 # Consumer
-def process_files(loaded_files,finished,verbose,file_path):
+def process_files(loaded_files,finished,verbose,file_path,d_obj):
 	'''Method to take loaded files and process them using multi-threading.
 	This method acts as the consumer.
 
@@ -111,33 +113,43 @@ def process_files(loaded_files,finished,verbose,file_path):
 		if not loaded_files.empty():
 			# Get the loaded file
 			f = loaded_files.get()
+			
+			# Check the progress status of current file
+			status = d_obj.check_exist(os.path.basename(f[:-4]))
+
+			if(status==1):
+				continue
 			if(verbose):
 				display(f'Consuming {ctr}: {f}')
 
-			# Perform Music Classification
-			if verbose:
-				print('\n-- Step 2.1 Music Classification --\n')
+			# Create Model class object
 			m_obj = Model(f,verbose,file_path,run_on_mnt=False)
-			m_obj.music_classification()
 
-			# Perform Keyframe Extraction
-			# if verbose:
-			# 	print('\n\n+++ Step 3: Keyframe Extraction +++\n\n')
-			# m_obj.keyframe_extraction(gpu_enable=False,file_spec=True)
+			if(status==0):
+				# Perform Music Classification
+				if verbose:
+					print('\n-- Step 2.1 Music Classification --\n')
+				m_obj.music_classification()
 
-			# Extract basename of file
-			base = os.path.splitext(os.path.basename(f))
+			# Perform Image Filtering
 			if verbose:
-				print('\n\n+++ Step 4: Remove mp4 File +++\n\n')
-				print(base)
-			# Load rm arguments
-			args = ["rm","-rf",file_path+"/hxm471/video_files/"+base[0]+'.mp4']
-			# Launch rm
-			p = Popen(args, stdout=PIPE, stderr=PIPE)
-			# Determine if error occured
-			output,error = p.communicate()
-			assert p.returncode == 0, error
-			# 
+				print('\n\n+++ Step 3: Image Classification Filtering +++\n\n')
+			m_obj.image_filter()
+
+			if(status==0):
+				# Extract basename of file
+				base = os.path.splitext(os.path.basename(f))
+				if verbose:
+					print('\n\n+++ Step 4: Remove mp4 File +++\n\n')
+					print(base)
+				# Load rm arguments
+				args = ["rm","-rf",file_path+"/video_files/"+base[0]+'.mp4']
+				# Launch rm
+				p = Popen(args, stdout=PIPE, stderr=PIPE)
+				# Determine if error occured
+				output,error = p.communicate()
+				assert p.returncode == 0, error
+
 			# Increment counter
 			ctr+=1
 		else:
@@ -191,7 +203,7 @@ def main(job_num:int, verbose:bool, file_path):
 		print('\n\n+++ Step 2: Multi-threaded Consumer-Producer +++\n\n')
 	producer = Thread(target=load_files, args=[files,loaded_files,finished,verbose,file_path,d_obj]
 						,daemon=True)
-	consumer = Thread(target=process_files, args=[loaded_files,finished,verbose,file_path]
+	consumer = Thread(target=process_files, args=[loaded_files,finished,verbose,file_path,d_obj]
 						,daemon=True)
 
 	producer.start()

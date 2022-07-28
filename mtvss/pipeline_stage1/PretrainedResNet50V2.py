@@ -55,7 +55,7 @@ class PretrainedResNet50V2:
 		print(self.basemodel.summary())
 		
 		# Model Parameters
-		self.IMG_SIZE = (180,180)
+		self.IMG_SIZE = (400,400)
 		self.BATCH_SIZE = 64
 		self.feature_batch = None
 
@@ -85,13 +85,13 @@ class PretrainedResNet50V2:
 		# Define prediction layer
 		prediction_layer = tf.keras.Sequential([
 			tf.keras.layers.Dense(32, activation='relu'),
-			tf.keras.layers.Dense(num_classes)
+			tf.keras.layers.Dense(num_classes, activation='softmax')
 		])
 		prediction_batch = prediction_layer(feature_batch_average)
 		print(prediction_batch.shape)
 
 		# Build model
-		inputs = tf.keras.Input(shape=(180,180,3))
+		inputs = tf.keras.Input(shape=(400,400,3))
 		x = data_augmentation(inputs)
 		x = preprocess_input(x)
 		x = self.basemodel(x, training=False)
@@ -101,9 +101,17 @@ class PretrainedResNet50V2:
 
 		# Set model
 		self.model = tf.keras.Model(inputs,outputs)
+		print("Model:",self.model)
 
 	def load_dataset(self, dataset_path):
 		'''This method loads in the jpeg images for training.
+
+		Args:
+			dataset_path (str): Path to load in the data for training.
+
+		Returns:
+			train_ds (): Train dataset split
+			val_ds (): Validation dataset split
 		'''
 		# Load dataset
 		if(dataset_path!=None):
@@ -117,6 +125,7 @@ class PretrainedResNet50V2:
 		# Split into train and validation set
 		train_ds = tf.keras.utils.image_dataset_from_directory(
 			data_dir,
+			label_mode='categorical',
 			validation_split=0.2,
 			subset='training',
 			seed=123,
@@ -126,6 +135,7 @@ class PretrainedResNet50V2:
 
 		val_ds = tf.keras.utils.image_dataset_from_directory(
 			data_dir,
+			label_mode='categorical',
 			validation_split=0.2,
 			subset='validation',
 			seed=123,
@@ -154,11 +164,13 @@ class PretrainedResNet50V2:
 		train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
 		val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
+		print(list(val_ds))
+
 		return train_ds,val_ds
 
 	def save_plots(self, history, out_path):
 		'''Method to create epoch vs accuracy and epoch vs loss plots
-		and save them.
+		and saves them.
 
 		Args:
 			history (History): History object from tensorflow.
@@ -175,11 +187,13 @@ class PretrainedResNet50V2:
 		epoch_count = [i for i in range(1,history.params['epochs']+1)]
 		
 		if self.verbose:
-			print("training_loss",training_loss)
-			print("test_loss",test_loss)
-			print("training_acc",training_acc)
-			print("test_acc",test_acc)
-			print("epoch_count",epoch_count)
+			print("\n### Saving Model Plots")
+			print("#### Training_loss:",training_loss)
+			print("#### Test_loss:",test_loss)
+			print("#### Training_acc:",training_acc)
+			print("#### Test_acc:",test_acc)
+			print("#### Epoch_count:",epoch_count)
+			print("#### Output dir:",out_path)
 
 		# Visualize loss history
 		plt.plot(epoch_count, training_loss, 'r--')
@@ -187,11 +201,23 @@ class PretrainedResNet50V2:
 		plt.legend(['Training Loss', 'Test Loss'])
 		plt.xlabel('Epoch')
 		plt.ylabel('Loss')
-		plt.show();
+		plt.title("Epoch vs Loss")
+		plt.savefig(out_path+'_LossPlots.svg');
 
+		plt.clf()
+
+		# Visualize accuracy history
+		plt.plot(epoch_count, training_acc, 'r--')
+		plt.plot(epoch_count, test_acc, 'b-')
+		plt.legend(['Training Accuracy', 'Test Accuracy'])
+		plt.xlabel('Epoch')
+		plt.ylabel('Accuracy')
+		plt.title("Epoch vs Accuracy")
+		plt.savefig(out_path+'_AccuracyPlots.svg');
 
 	def train(self):
-		'''
+		'''Builds and trains the model. Then it saves the weights
+		and plots.
 		'''
 
 		# Get train and validation splits
@@ -203,7 +229,7 @@ class PretrainedResNet50V2:
 		# Compile the model
 		self.model.compile(
 			optimizer='adam',
-			loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+			loss=tf.keras.losses.CategoricalCrossentropy(from_logits=False),
 			metrics=['accuracy']
 		)
 
@@ -214,7 +240,7 @@ class PretrainedResNet50V2:
 		history = self.model.fit(
 			train_ds,
 			validation_data=val_ds,
-			epochs=2
+			epochs=40
 		)
 		
 		# Save the model
@@ -231,17 +257,30 @@ class PretrainedResNet50V2:
 
 
 	def predict(self,data):
+		'''This method is used to predict the output on the
+		data given.
+
+		Args:
+			data (np.ndarray): Image to get classification output.
 		'''
-		'''
-		try:
-			self.build_model()
-			checkpoint_dir = os.path.join(os.getcwd(),'/model_output/pretrainedResNet50V2')
-			self.model.load_weights(checkpoint_dir)
-		except Exception as e:
-			print(e)
-			pass
-		prediction = self.model.predict(data)
+		# Set feature batch
+		self.feature_batch = self.basemodel(data)
+
+		# Build the model
+		self.build_model()
+		# Get checkpoints dir
+		checkpoint_dir = os.path.join(os.getcwd(),'model_output/pretrainedResNet50V2')
+		# Load weights into model
+		self.model.load_weights(checkpoint_dir)
+		print(self.model)
+
+		# Load images
+		imgs = tf.image.resize(data,size=self.IMG_SIZE)
+
+		# Make prediction
+		prediction = self.model.predict(imgs)
 		print("prediction:",prediction)
+		return prediction
 
 if __name__=='__main__':
 	print('\n=== GPU Information ===\n')
@@ -253,3 +292,4 @@ if __name__=='__main__':
 
 	model_obj = PretrainedResNet50V2(verbose=True)
 	model_obj.train()
+	# model_obj.predict()

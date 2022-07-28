@@ -43,7 +43,9 @@ class Data:
 		Args:
 			file (str): Basename of the file
 		Returns:
-			status (bool): True if file has been processed fully. False otherwise. 
+			status (int):	1 if file has been processed fully.
+							2 if music segmentation has been processed.
+							0 if none has been processed.
 		'''
 		if self.verbose:
 			print("\n--- Starting check_exist ---")
@@ -55,11 +57,16 @@ class Data:
 		if(file in metatracker_df['File_Name'].unique()):
 			idx = metatracker_df.index[metatracker_df['File_Name']==file].tolist()[0]
 			if(metatracker_df['Stage-1-Music'].loc[idx]=='Done'):
-				if self.verbose:
-					print('# File processed! SKIPPING')
-				return True
+				if(metatracker_df['Stage-2-Images'].loc[idx]=='Done'):
+					if self.verbose:
+						print('# File completely processed! SKIPPING')
+					return 1
+				else:
+					if self.verbose:
+						print('# Music segmentation processed! SKIPPING')
+					return 2
 		else:
-			return False
+			return 0
 
 	def store_keyframes_txt(self,dir_path:str,txt_out_path:str,data:tuple):
 		np_path = os.path.join(dir_path,os.path.basename(txt_out_path)[:-4])

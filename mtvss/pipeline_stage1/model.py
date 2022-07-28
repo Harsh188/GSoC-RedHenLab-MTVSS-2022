@@ -18,15 +18,17 @@ import sys
 import warnings
 import random
 
+from subprocess import Popen, PIPE
+
 import pandas as pd
 import numpy as np
 
-from data import Data 
+from data import Data
+from PretrainedResNet50V2 import PretrainedResNet50V2
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import constants as const
-
 
 
 from decord import VideoReader
@@ -43,7 +45,7 @@ class Model:
 		self.verbose=verbose
 		self.file_path=file_path
 		if(not run_on_mnt):
-			sys.path.insert(1,self.file_path+'/hxm471/inaSpeechSegmenter')
+			sys.path.insert(1,self.file_path+'/inaSpeechSegmenter')
 		else:
 			sys.path.insert(1,const.H_PROJ_PATH+'/inaSpeechSegmenter')
 
@@ -72,7 +74,7 @@ class Model:
 		if(self.verbose):
 			print("\n-- Step 2.1.2: Checking output directory --\n")
 		# Check output DIR
-		odir = self.file_path+'/hxm471/mtvss/data/tmp/splits'
+		odir = self.file_path+'/mtvss/data/tmp/splits'
 		assert os.access(odir, os.W_OK), 'Directory %s is not writable!' % odir
 
 		with warnings.catch_warnings():
@@ -99,7 +101,7 @@ class Model:
 					# File has been processed
 					if self.verbose:
 						print("File has been processed!! SKIPPING to next stage!")
-					self.file_path = self.file_path+'/hxm471/video_files/'+base[0]+'.mp4'
+					self.file_path = self.file_path+'/video_files/'+base[0]+'.mp4'
 					return
 				start=split_f[-3]
 			
@@ -107,11 +109,11 @@ class Model:
 				print("\n-- Step 2.1.4: Starting batch process --\n")
 				print("Start Time:",start)
 			# Start Batch Process
-			result = seg.batch_process([self.file_path+'/hxm471/video_files/'+base[0]+'.mp4'], output_files, 
+			result = seg.batch_process([self.file_path+'/video_files/'+base[0]+'.mp4'], output_files, 
 				tmpdir=self.file_path,verbose=self.verbose, output_format='csv', skipifexist=False,
 				start_sec=start)
 			assert result[0] == 0, "Batch Process Failed!"
-			self.file_path = self.file_path+'/hxm471/video_files/'+base[0]+'.mp4'
+			self.file_path = self.file_path+'/video_files/'+base[0]+'.mp4'
 		return 
 
 	def keyframe_extraction(self, gpu_enable:bool,file_spec:bool):
@@ -204,3 +206,144 @@ class Model:
 		d_obj.store_keyframes_txt(dir_path,txt_out_path,(images,images_batch,t_list))
 
 		return images, images_batch, t_list
+
+	def prediction_image_extraction(self,filename,start_time,stop_time):
+		'''Using start and stop times provided, extract 5 keyframe images
+		for prediction.
+
+		Args:
+
+		Returns:
+			images (np.ndarray): 5 keyframe images.
+		'''
+		mp4_path = os.path.join(os.getcwd(),'video_files/'+filename+'.mp4')
+
+		vr = VideoReader(mp4_path, ctx=cpu(0))
+
+		frame_num = len(vr)
+
+		if(self.verbose):
+			print("Length of vid:",frame_num)
+
+		idx=0
+		# for i in range(df.index):
+		# 	mtimestamp = df.iloc[i,[1,2]]
+		t_list = []
+		frames = []
+		for i in range(0,frame_num,24):
+			# Get timestamp for current frame
+			timestamp = vr.get_frame_timestamp(i)
+			# If past timestamp then break
+			if(timestamp[1]>=stop_time):
+				break
+			# Store start and stop as a tuple
+			mtimestamp = (start_time,stop_time)
+			# Get the difference
+			difftime = timestamp-mtimestamp
+			# Check if the frame falls within timestamp
+			if(difftime[0]>0 and difftime[1]<0):
+				if(idx>len(frames)-1):
+					frames.append([i,i])
+					t_list.append([timestamp[0],timestamp[0]])
+				elif(frames[idx][1]<i):
+					frames[idx][1]=i
+					t_list[idx][1]=timestamp[0]
+			elif(difftime[0]<0):
+				continue
+			else:
+				idx+=1
+				continue
+		print(t_list)
+		print(frames)
+
+		images_batch = []
+		images=[]
+		idx=0
+		for i in frames:
+			images_batch.append([])
+			for j in range(5):
+				rand = round(random.randint(i[0],i[1]),2)
+				images_batch[idx].append(rand)
+			idx+=1
+
+		# To flatten a list of lists
+		images_batch_flat = [x for xs in images_batch for x in xs]
+		images = vr.get_batch(images_batch_flat).asnumpy()
+
+		print(images)
+
+		return images
+
+
+	def image_filter(self):
+		'''This method will use the fine-tuned ResNet50V2 to filter out any
+		commercials and identify which music segements contain the title sequence.
+
+		Args:
+			
+		Returns:
+
+		'''
+		# Get filename
+		filename = os.path.basename(self.file)[:-4]
+
+		# Load in pipeline progress status
+		metatracker_path = os.path.join(os.getcwd(),
+						'mtvss/data/tmp/metadata_tracker.csv')
+		metatracker_df = pd.read_csv(metatracker_path)
+
+		# Check if file has been processed
+		idx = metatracker_df.index[metatracker_df['File_Name']==filename].tolist()[0]
+		if(metatracker_df['Stage-2-Images'].loc[idx]=='Done'):
+			if self.verbose:
+				print('\n--- Already Filtered - SKIPPING! ---\n')
+			return
+
+		# Load the pretrained ResNet50V2 model
+		model_obj = PretrainedResNet50V2(verbose=True)
+
+		# Retrieve music segmentation timestamps
+		load_path = None
+		if(os.path.exists(const.SCRATCH_PATH+'tmp/'+filename+'.csv')):
+			load_path = const.SCRATCH_PATH+'tmp/'+filename+'.csv'
+		else:
+			# Copy file from gallina to TMPDIR
+			# Load rsync arguments
+			csv_path = const.H_GAL_HOME_PATH+'splits/tmp/'+filename+'.csv'
+			args = ["rsync","-e","ssh","-az","hpc4:"+csv_path,os.path.join(os.getcwd(),"seg")]
+			# Launch rsync
+			p = Popen(args, stdout=PIPE, stderr=PIPE)
+			# Determine if error occured
+			output,error = p.communicate()
+			assert p.returncode == 0, error
+
+			load_path = os.path.join(os.getcwd(),"seg/"+filename+'.csv')
+
+		# Load pandas DataFrame from csv path
+		seg_df = pd.read_csv(load_path)
+		if self.verbose:
+			print("## Segmentation CSV")
+			print(seg_df.head())
+
+		# Loop through all segmentations
+		for index, row in seg_df.iterrows():
+			print(row)
+			images = self.prediction_image_extraction(filename,int(row['start']),int(row['stop']))
+			output = model_obj.predict(images)
+
+			column_avg = [sum(sub_list) / len(sub_list) for sub_list in zip(*output)]
+
+			max_class = column_avg.index(max(column_avg))
+
+			if max_class==0:
+				# Classification is a Commercial
+				if self.verbose:
+					print("## Prediction: Commercial")
+					print("## Confidence:",column_avg[0])
+				pass
+			else:
+				# Classification is a Title Sequence
+				if self.verbose:
+					print("## Prediction: Title Sequence")
+					print("## Confidence:",column_avg[1])
+				pass
