@@ -68,13 +68,13 @@ TODO:
 #### Roadmap
 
 - [x] Community Bonding
-- [ ] Pipeline Stage One
+- [x] Pipeline Stage One
 	- [x] Audio Extraction
 	- [x] Perform music segmentation
 	- [x] Extract keyframes
 	- [x] Manually annotate title sequences
-	- [ ] Train keyframe classifier
-- [ ] Evaluation 1
+	- [x] Train keyframe classifier
+- [x] Evaluation 1
 - [ ] Pipeline Stage Two
     - [ ] RNN-DBSCAN Clustering
     - [ ] Create video splits
