@@ -164,8 +164,6 @@ class PretrainedResNet50V2:
 		train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
 		val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
-		print(list(val_ds))
-
 		return train_ds,val_ds
 
 	def save_plots(self, history, out_path):
@@ -263,23 +261,30 @@ class PretrainedResNet50V2:
 		Args:
 			data (np.ndarray): Image to get classification output.
 		'''
-		# Set feature batch
-		self.feature_batch = self.basemodel(data)
-
-		# Build the model
-		self.build_model()
-		# Get checkpoints dir
-		checkpoint_dir = os.path.join(os.getcwd(),'model_output/pretrainedResNet50V2')
-		# Load weights into model
-		self.model.load_weights(checkpoint_dir)
-		print(self.model)
-
+		print("## Data:",data.shape)
 		# Load images
 		imgs = tf.image.resize(data,size=self.IMG_SIZE)
+		print("## Imgs:",imgs.shape)
+		imgs = tf.data.Dataset.from_tensor_slices(imgs)
+		imgs_batch = imgs.batch(batch_size=125)
+		imgs = list(imgs_batch.as_numpy_iterator())
+
+		if self.feature_batch==None:
+			# Set feature batch
+			self.feature_batch = self.basemodel(imgs[0])
+			del imgs
+		if self.model==None:
+			# Build the model
+			self.build_model()
+			# Get checkpoints dir
+			checkpoint_dir = os.path.join(os.getcwd(),'model_output/pretrainedResNet50V2')
+			# Load weights into model
+			self.model.load_weights(checkpoint_dir)
+			print(self.model)
 
 		# Make prediction
-		prediction = self.model.predict(imgs)
-		print("prediction:",prediction)
+		prediction = self.model.predict(imgs_batch,batch_size=125)
+		print("## Model Output:\n",prediction)
 		return prediction
 
 if __name__=='__main__':

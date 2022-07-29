@@ -212,35 +212,37 @@ class Model:
 		for prediction.
 
 		Args:
-
+			filename (str): Name of file being processed
+			start_time (list): list of start times for music intervals.
+			stop_time (list): list of stop times for music intervals.
 		Returns:
-			images (np.ndarray): 5 keyframe images.
+			images (np.ndarray): batches of 5 keyframe images.
 		'''
 		mp4_path = os.path.join(os.getcwd(),'video_files/'+filename+'.mp4')
 
 		vr = VideoReader(mp4_path, ctx=cpu(0))
-
 		frame_num = len(vr)
 
-		if(self.verbose):
-			print("Length of vid:",frame_num)
+		print(start_time)
+
+		for idx in range(len(start_time.index)):
+			timestamp = (start_time.loc[idx],stop_time.loc[idx])
 
 		idx=0
-		# for i in range(df.index):
-		# 	mtimestamp = df.iloc[i,[1,2]]
 		t_list = []
 		frames = []
 		for i in range(0,frame_num,24):
-			# Get timestamp for current frame
-			timestamp = vr.get_frame_timestamp(i)
-			# If past timestamp then break
-			if(timestamp[1]>=stop_time):
+			# Check if all music timestamps have been mapped
+			if idx>=len(start_time.index):
 				break
-			# Store start and stop as a tuple
-			mtimestamp = (start_time,stop_time)
-			# Get the difference
+			# Get timestamp range for current frame
+			timestamp = vr.get_frame_timestamp(i)
+			# Get timestamp of music interval at idx
+			mtimestamp = (start_time.loc[idx],stop_time.loc[idx])
+			# Check if music timestamp is within frame timestamp
 			difftime = timestamp-mtimestamp
-			# Check if the frame falls within timestamp
+			# difftime[0] > 0 - start time falls within range 
+			# difftime[1] < 0 - end time falls within range
 			if(difftime[0]>0 and difftime[1]<0):
 				if(idx>len(frames)-1):
 					frames.append([i,i])
@@ -248,13 +250,21 @@ class Model:
 				elif(frames[idx][1]<i):
 					frames[idx][1]=i
 					t_list[idx][1]=timestamp[0]
+			# Start time out of range
 			elif(difftime[0]<0):
 				continue
+			# End time out of range 
 			else:
 				idx+=1
 				continue
-		print(t_list)
-		print(frames)
+
+		if self.verbose:
+			print('\n-- Keyframe Extraction --')
+			print("## Length of vid:",frame_num)
+			print("## Timestamps list:",t_list)
+			print("## Frame mapping:",frames)
+			print("## Frame mapping len:",len(frames))
+
 
 		images_batch = []
 		images=[]
@@ -269,8 +279,6 @@ class Model:
 		# To flatten a list of lists
 		images_batch_flat = [x for xs in images_batch for x in xs]
 		images = vr.get_batch(images_batch_flat).asnumpy()
-
-		print(images)
 
 		return images
 
@@ -324,26 +332,51 @@ class Model:
 		if self.verbose:
 			print("## Segmentation CSV")
 			print(seg_df.head())
+			print("## Len of CSV:",len(seg_df.index))
 
-		# Loop through all segmentations
-		for index, row in seg_df.iterrows():
-			print(row)
-			images = self.prediction_image_extraction(filename,int(row['start']),int(row['stop']))
-			output = model_obj.predict(images)
+		# Create a new DataFrame to hold classification labels
+		filtered_df = pd.DataFrame(columns=['label','start','end','confidence'])
 
-			column_avg = [sum(sub_list) / len(sub_list) for sub_list in zip(*output)]
+		# Get all keyframes for current file
+		images = self.prediction_image_extraction(filename,seg_df['start'],seg_df['stop'])
+		# Get model prediciton for all keyframe images
+		output = model_obj.predict(images)
+		print(output.shape)
 
-			max_class = column_avg.index(max(column_avg))
+		# Split output into batches of 5
+		output = np.split(output,output.shape[0]//5)
+		print(len(output))
+		idx=0
+		for i in output:
+			print(i)
+			column_avg = np.mean(i,axis=0)
+			print(column_avg)
+			max_class = np.argmax(column_avg,axis=0)
 
 			if max_class==0:
 				# Classification is a Commercial
 				if self.verbose:
 					print("## Prediction: Commercial")
 					print("## Confidence:",column_avg[0])
-				pass
+				filtered_df.loc[len(filtered_df.index)] = ['Commercial',
+															seg_df['start'].loc[idx],
+															seg_df['stop'].loc[idx],
+															column_avg[0]]
 			else:
 				# Classification is a Title Sequence
 				if self.verbose:
 					print("## Prediction: Title Sequence")
 					print("## Confidence:",column_avg[1])
-				pass
+				filtered_df.loc[len(filtered_df.index)] = ['TitleSequence',
+															seg_df['start'].loc[idx],
+															seg_df['stop'].loc[idx],
+															column_avg[1]]
+			idx+=1
+		# Store DataFrame
+		filter_out_path = os.path.join(const.SCRATCH_PATH+'tmp/'+
+										filename+'_image_filtered.csv')
+		if self.verbose:
+			print("## Filtered DataFrame:")
+			print(filtered_df.head())
+			print("## Storing dataframe:",filter_out_path)
+		filtered_df.to_csv(filter_out_path)
