@@ -28,6 +28,9 @@ mkdir $TMPDIR/$USER/video_files
 # Make temp directory to store model checkpoints
 mkdir $TMPDIR/$USER/model_output
 
+# Make temp directory to store music segmentation files
+mkdir $TMPDIR/$USER/seg
+
 # Make directory to store output
 mkdir /scratch/users/$USER/jobs/interactive
 
@@ -35,7 +38,7 @@ mkdir /scratch/users/$USER/jobs/interactive
 mv /scratch/users/$USER/jobs/*interactive* /scratch/users/$USER/jobs/interactive
 
 # Run singularity container -- Pipeline Stage 1 -- Music Classification
-singularity exec -e --nv --bind /scratch/users/hxm471/,/home/hxm471/,$TMPDIR/$USER/ /scratch/users/$USER/mtvss_dev6.sif python3 $TMPDIR/$USER/mtvss/pipeline_stage1/run_pipeline_stage1.py --job_num=100 --model="music" --verbose=True --file_path=${TMPDIR}
+singularity exec -e --nv --bind /scratch/users/hxm471/,/home/hxm471/,$TMPDIR/$USER/ /scratch/users/$USER/mtvss_dev6.sif python3 $TMPDIR/$USER/mtvss/pipeline_stage1/run_pipeline_stage1.py --job_num=100 --model="music" --verbose=True --file_path=${TMPDIR}/${USER}
 
 # Remove temporary files
 # rm -f -r /tmp/$USER/
