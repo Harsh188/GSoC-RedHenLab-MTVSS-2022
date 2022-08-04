@@ -29,6 +29,7 @@ WORKDIR /MultiModalTVShowSeg-2022
 
 ADD ./requirements.txt .
 ADD ./inaSpeechSegmenter .
+ADD ./decord .
 
 # View contents while building dockerfile
 RUN ls -a
@@ -53,4 +54,7 @@ RUN cd decord
 RUN mkdir build && cd build
 RUN cmake .. -DUSE_CUDA=0 -DCMAKE_BUILD_TYPE=Release
 RUN make
+RUN cd ..
 
+# Remove decord
+RUN rm -f -r ./decord
