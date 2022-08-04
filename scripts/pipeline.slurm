@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -o /home/hxm471/arrayjob_%A_%a.o
+#SBATCH -o /scratch/users/hxm471/jobs/arrayjob_%A_%a.o
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --time=09:00:00
@@ -37,9 +37,6 @@ cd $TMPDIR/$USER/
 # Make temp directory to store copies of mp4 files
 mkdir $TMPDIR/$USER/video_files
 
-# Make temp directory to store model checkpoints
-mkdir $TMPDIR/$USER/model_output
-
 # Make temp directory to store music segmentation files
 mkdir $TMPDIR/$USER/seg
 
@@ -47,10 +44,11 @@ mkdir $TMPDIR/$USER/seg
 mkdir /scratch/users/$USER/jobs/$SLURM_ARRAY_JOB_ID
 
 # Move all batch output files to dir
-mv /home/$USER/*_$SLURM_ARRAY_JOB_ID_* /scratch/users/$USER/jobs/$SLURM_ARRAY_JOB_ID
+# mv /home/$USER/*_$SLURM_ARRAY_JOB_ID_* /scratch/users/$USER/jobs/$SLURM_ARRAY_JOB_ID
+mv /scratch/users/$USER/jobs/*_$SLURM_ARRAY_JOB_ID_* /scratch/users/$USER/jobs/$SLURM_ARRAY_JOB_ID
 
 # Run singularity container -- Pipeline Stage 1 -- Music Classification
-srun singularity exec -e --nv --bind /scratch/users/hxm471/,/home/hxm471/,$TMPDIR/$USER/ /scratch/users/$USER/mtvss_dev6.sif python3 $TMPDIR/$USER/mtvss/pipeline_stage1/run_pipeline_stage1.py --job_num=${SLURM_ARRAY_TASK_ID} --model="music" --verbose=True --file_path=${TMPDIR}/${USER} > /home/$USER/jobs/$SLURM_ARRAY_JOB_ID/py_output_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.txt
+srun singularity exec -e --nv --bind /scratch/users/hxm471/,/home/hxm471/,$TMPDIR/$USER/ /scratch/users/$USER/mtvss_dev6.sif python3 $TMPDIR/$USER/mtvss/pipeline_stage1/run_pipeline_stage1.py --job_num=${SLURM_ARRAY_TASK_ID} --model="music" --verbose=True --file_path=${TMPDIR}/${USER} > /scratch/users/$USER/jobs/$SLURM_ARRAY_JOB_ID/py_output_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.txt
 
 # Remove temporary files
 rm -f -r "$TMPDIR"/*

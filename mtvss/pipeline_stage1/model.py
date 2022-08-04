@@ -324,7 +324,6 @@ class Model:
 			# Determine if error occured
 			output,error = p.communicate()
 			assert p.returncode == 0, error
-
 			load_path = os.path.join(os.getcwd(),"seg/"+filename+'.csv')
 
 		# Load pandas DataFrame from csv path
