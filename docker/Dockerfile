@@ -46,8 +46,7 @@ RUN rm -f -r ./inaSpeechSegmenter
 
 ## INSTALL DECORD
 # official PPA comes with ffmpeg 2.8, which lacks tons of features, we use ffmpeg 4.0 here
-RUN add-apt-repository ppa:jonathonf/ffmpeg-4 # for ubuntu20.04 official PPA is already version 4.2, you may skip this step
-RUN apt-get install -y python3-setuptools make cmake
+RUN apt-get install -y --no-install-recommends --quiet python3-setuptools make cmake
 # note: make sure you have cmake 3.8 or later, you can install from cmake official website if it's too old
 
 RUN cd decord
