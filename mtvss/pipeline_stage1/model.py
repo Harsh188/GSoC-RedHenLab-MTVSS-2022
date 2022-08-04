@@ -74,7 +74,7 @@ class Model:
 		if(self.verbose):
 			print("\n-- Step 2.1.2: Checking output directory --\n")
 		# Check output DIR
-		odir = self.file_path+'/mtvss/data/tmp/splits'
+		odir = '/scratch/users/hxm471/tmp'
 		assert os.access(odir, os.W_OK), 'Directory %s is not writable!' % odir
 
 		with warnings.catch_warnings():
