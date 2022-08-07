@@ -30,6 +30,7 @@ import constants as const
 
 # Deep Learning Imports
 import tensorflow as tf
+from tensorflow import keras
 from tensorflow.keras.layers import AveragePooling2D
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import Flatten
@@ -52,7 +53,6 @@ class PretrainedResNet50V2:
 								weights='imagenet')
 		self.basemodel.trainable = False
 		print('\n--- Initialized PretrainedResNet50V2 ---\n')
-		print(self.basemodel.summary())
 		
 		# Model Parameters
 		self.IMG_SIZE = (400,400)
@@ -282,10 +282,18 @@ class PretrainedResNet50V2:
 			self.model.load_weights(checkpoint_dir)
 			print(self.model)
 
+		print(self.model.summary())
 		# Make prediction
 		prediction = self.model.predict(imgs_batch,batch_size=125)
 		print("## Model Output:\n",prediction)
-		return prediction
+
+		# Extract features
+		layer_name = "global_average_pooling2d"
+		features_layer = keras.Model(inputs=self.model.input,
+						outputs=self.model.get_layer(layer_name).output)
+		features = features_layer.predict(imgs_batch,batch_size=125)
+
+		return prediction, features
 
 if __name__=='__main__':
 	print('\n=== GPU Information ===\n')

@@ -301,11 +301,15 @@ class Model:
 		metatracker_df = pd.read_csv(metatracker_path)
 
 		# Check if file has been processed
-		idx = metatracker_df.index[metatracker_df['File_Name']==filename].tolist()[0]
-		if(metatracker_df['Stage-2-Images'].loc[idx]=='Done'):
-			if self.verbose:
-				print('\n--- Already Filtered - SKIPPING! ---\n')
-			return
+		try:
+			idx = metatracker_df.index[metatracker_df['File_Name']==filename].tolist()[0]
+			if(metatracker_df['Stage-2-Images'].loc[idx]=='Done'):
+				if self.verbose:
+					print('\n--- Already Filtered - SKIPPING! ---\n')
+				return
+		except Exception as e:
+			print(e)
+			print("\n## GAL Path not UPDATED!")
 
 		# Load the pretrained ResNet50V2 model
 		model_obj = PretrainedResNet50V2(verbose=True)
@@ -339,7 +343,7 @@ class Model:
 		# Get all keyframes for current file
 		images = self.prediction_image_extraction(filename,seg_df['start'],seg_df['stop'])
 		# Get model prediciton for all keyframe images
-		output = model_obj.predict(images)
+		output,features = model_obj.predict(images)
 		print(output.shape)
 
 		# Split output into batches of 5
@@ -374,6 +378,7 @@ class Model:
 		# Store DataFrame
 		filter_out_path = os.path.join(const.SCRATCH_PATH+'tmp/'+
 										filename+'_image_filtered.csv')
+		np.save(const.SCRATCH_PATH+'tmp/'+filename+'_image_features.npy',features)
 		if self.verbose:
 			print("## Filtered DataFrame:")
 			print(filtered_df.head())

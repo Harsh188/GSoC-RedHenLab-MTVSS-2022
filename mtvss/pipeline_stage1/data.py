@@ -61,6 +61,10 @@ class Data:
 					if self.verbose:
 						print('# File completely processed! SKIPPING')
 					return 1
+				elif(os.path.exists(const.SCRATCH_PATH+'tmp/'+file+'_image_filtered.csv')):
+					if self.verbose:
+						print('# File completely processed! SKIPPING')
+					return 1
 				else:
 					if self.verbose:
 						print('# Music segmentation processed! SKIPPING')
