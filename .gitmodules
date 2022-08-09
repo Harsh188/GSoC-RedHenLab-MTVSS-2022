@@ -4,3 +4,6 @@
 [submodule "decord"]
 	path = decord
 	url = git@github.com:Harsh188/decord.git
+[submodule "sklearn-ann"]
+	path = sklearn-ann
+	url = git@github.com:Harsh188/sklearn-ann.git
