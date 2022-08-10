@@ -2,7 +2,7 @@
 #SBATCH -o /scratch/users/hxm471/jobs/arrayjob_%A_%a.o
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --time=09:00:00
+#SBATCH --time=12:00:00
 #SBATCH --mem=30gb
 #SBATCH -p gpu
 #SBATCH -C gpu4v100
