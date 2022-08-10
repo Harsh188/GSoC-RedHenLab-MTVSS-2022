@@ -1,6 +1,7 @@
 # Create base OS Image
 # FROM debian:bullseye-slim AS base
 FROM tensorflow/tensorflow:2.9.0-gpu
+# FROM nvcr.io/nvidia/tensorflow:22.07-tf2-py3
 
 # Update the OS image
 RUN apt-get -y update 
@@ -14,12 +15,13 @@ RUN apt-get install -y --no-install-recommends --quiet \
     cmake \
     ffmpeg \
     rsync \
+    python3-setuptools \
     openssh-client \
     libavcodec-dev \
     libavfilter-dev \
     libavformat-dev \
     libavutil-dev \
-    libsndfile1-dev
+    libsndfile1-dev 
 
 # Image layer on top of base to install requirements
 # FROM tensorflow/tensorflow:2.9.0-gpu
@@ -27,9 +29,11 @@ RUN apt-get install -y --no-install-recommends --quiet \
 # Set working directory to MultiModalTVShowSeg-2022
 WORKDIR /MultiModalTVShowSeg-2022
 
+# View contents while building dockerfile
+RUN ls -a
+
 ADD ./requirements.txt .
 ADD ./inaSpeechSegmenter .
-ADD ./decord .
 
 # View contents while building dockerfile
 RUN ls -a
@@ -44,17 +48,3 @@ RUN cd ..
 
 # Remove inaSpeechSegmenter
 RUN rm -f -r ./inaSpeechSegmenter
-
-## INSTALL DECORD
-# official PPA comes with ffmpeg 2.8, which lacks tons of features, we use ffmpeg 4.0 here
-RUN apt-get install -y --no-install-recommends --quiet python3-setuptools make cmake
-# note: make sure you have cmake 3.8 or later, you can install from cmake official website if it's too old
-
-RUN cd decord
-RUN mkdir build && cd build
-RUN cmake .. -DUSE_CUDA=0 -DCMAKE_BUILD_TYPE=Release
-RUN make
-RUN cd ..
-
-# Remove decord
-RUN rm -f -r ./decord
