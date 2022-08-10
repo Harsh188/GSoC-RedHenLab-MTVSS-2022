@@ -31,6 +31,8 @@ import logging
 
 from data import Data
 from model import Model
+from PretrainedResNet50V2 import PretrainedResNet50V2
+
 
 # Functions
 def parseArgs():
@@ -95,7 +97,7 @@ def load_files(files,loaded_files,finished,verbose,file_path,d_obj):
 		display('finished')
 
 # Consumer
-def process_files(loaded_files,finished,verbose,file_path,d_obj):
+def process_files(loaded_files,finished,verbose,file_path,d_obj,model_obj):
 	'''Method to take loaded files and process them using multi-threading.
 	This method acts as the consumer.
 
@@ -104,6 +106,7 @@ def process_files(loaded_files,finished,verbose,file_path,d_obj):
 		finished (Queue): Determines if producer is done.
 		verbose (bool): If true it prints verbose statements to 
 			check the progress of the program
+		model_obj (Keras.model): Fine-tuned ResNet50V2 Model
 	Returns:
 	'''
 
@@ -134,7 +137,7 @@ def process_files(loaded_files,finished,verbose,file_path,d_obj):
 			# Perform Image Filtering
 			if verbose:
 				print('\n\n+++ Step 3: Image Classification Filtering +++\n\n')
-			m_obj.image_filter()
+			m_obj.image_filter(model_obj)
 
 			if(status==0):
 				# Extract basename of file
@@ -195,6 +198,9 @@ def main(job_num:int, verbose:bool, file_path):
 	if verbose:
 		print(files)
 
+	# Initialize ResNet Model
+	model_obj = PretrainedResNet50V2(verbose=True)
+
 	# Create a queue to hold loaded files
 	loaded_files = Queue(maxsize=8)
 	finished = Queue()
@@ -203,7 +209,7 @@ def main(job_num:int, verbose:bool, file_path):
 		print('\n\n+++ Step 2: Multi-threaded Consumer-Producer +++\n\n')
 	producer = Thread(target=load_files, args=[files,loaded_files,finished,verbose,file_path,d_obj]
 						,daemon=True)
-	consumer = Thread(target=process_files, args=[loaded_files,finished,verbose,file_path,d_obj]
+	consumer = Thread(target=process_files, args=[loaded_files,finished,verbose,file_path,d_obj,model_obj]
 						,daemon=True)
 
 	producer.start()

@@ -44,10 +44,14 @@ class Model:
 		self.file=file
 		self.verbose=verbose
 		self.file_path=file_path
+
+		# Load the pretrained ResNet50V2 model
+		# self.model_obj = PretrainedResNet50V2(verbose=True)
+
 		if(not run_on_mnt):
 			sys.path.insert(1,self.file_path+'/inaSpeechSegmenter')
 		else:
-			sys.path.insert(1,const.H_PROJ_PATH+'/inaSpeechSegmenter')
+			sys.path.insert(1,const.H_PROJ_PATH+'inaSpeechSegmenter')
 
 		self.segmenter = __import__("segmenter")
 		self.csv_path=None
@@ -283,12 +287,12 @@ class Model:
 		return images
 
 
-	def image_filter(self):
+	def image_filter(self,model_obj):
 		'''This method will use the fine-tuned ResNet50V2 to filter out any
 		commercials and identify which music segements contain the title sequence.
 
 		Args:
-			
+			model_obj (Keras.model): Fine-tuned ResNet50V2 Model
 		Returns:
 
 		'''
@@ -311,8 +315,16 @@ class Model:
 			print(e)
 			print("\n## GAL Path not UPDATED!")
 
-		# Load the pretrained ResNet50V2 model
-		model_obj = PretrainedResNet50V2(verbose=True)
+		# Check files in scratch
+		try:
+			if(os.path.exists(const.SCRATCH_PATH+'tmp/'+filename+'_image_filtered.csv')):
+				if(os.path.exists(const.SCRATCH_PATH+'tmp/'+filename+'_image_features.npy')):
+					if self.verbose:
+						print('\n--- Already Filtered - SKIPPING! ---\n')
+					return
+		except Exception as e:
+			print(e)
+			print("\n## GAL Path not UPDATED!")
 
 		# Retrieve music segmentation timestamps
 		load_path = None
@@ -376,9 +388,15 @@ class Model:
 															column_avg[1]]
 			idx+=1
 		# Store DataFrame
+		if self.verbose:
+			print("## Features:")
+			print(features)
+			print("## Storing features:",const.SCRATCH_PATH+'tmp/'+filename+'_image_features.npy')
+		
+		np.save(const.SCRATCH_PATH+'tmp/'+filename+'_image_features.npy',features)
+		
 		filter_out_path = os.path.join(const.SCRATCH_PATH+'tmp/'+
 										filename+'_image_filtered.csv')
-		np.save(const.SCRATCH_PATH+'tmp/'+filename+'_image_features.npy',features)
 		if self.verbose:
 			print("## Filtered DataFrame:")
 			print(filtered_df.head())
