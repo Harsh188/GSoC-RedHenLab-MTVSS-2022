@@ -61,14 +61,15 @@ def main(verbose:bool, file_path):
 
 	# Data
 	d_obj = Data(verbose,file_path)
-	files = d_obj.ingestion()
+	data = d_obj.ingestion()
 
 	if(verbose):
-		print("## Ingested files:",len(files))
+		print("## Ingested data:")
+		print(data[0])
 
 	# Clustering
 	m_obj = Model(verbose,file_path,run_on_mnt=False)
-	m_obj.run_rnn_dbscan(files)
+	m_obj.run_rnn_dbscan(data)
 
 
 if __name__=='__main__':

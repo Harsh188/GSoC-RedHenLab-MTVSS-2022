@@ -44,7 +44,7 @@ class Model:
 	def run_rnn_dbscan(self,data):
 		'''
 		'''
-		n_neighbors				= 2
+		n_neighbors = 2
 		pipeline = self.RnnDBSCAN.simple_rnn_dbscan_pipeline(KNeighborsTransformer, n_neighbors)
 		labels = pipeline.fit_predict(data)
 		db = pipeline.named_steps["rnndbscan"]

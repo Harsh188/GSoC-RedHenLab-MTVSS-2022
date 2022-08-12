@@ -48,8 +48,8 @@ class Data:
 		Returns:
 			data (List): List of image features loaded in mmap_mode.
 		"""
-		data = []
+		data = np.empty((0,2048))
 		for f in glob.glob(const.SCRATCH_PATH+'tmp/'+'*image_features*.npy'):
-			data.append(np.load(f,mmap_mode='r'))
-
+			data = np.append(data,np.load(f,mmap_mode='r'),axis=0)
+			print(data.shape)
 		return data
