@@ -49,7 +49,11 @@ class Data:
 			data (List): List of image features loaded in mmap_mode.
 		"""
 		data = np.empty((0,2048))
+		ctr = 0
 		for f in glob.glob(const.SCRATCH_PATH+'tmp/'+'*image_features*.npy'):
 			data = np.append(data,np.load(f,mmap_mode='r'),axis=0)
 			print(data.shape)
+			ctr+=1
+			if ctr==20:
+				break
 		return data
