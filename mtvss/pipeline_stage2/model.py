@@ -19,6 +19,9 @@ import numpy as np
 
 from sklearn.neighbors import KNeighborsTransformer
 
+from sklearn.datasets import fetch_openml
+from sklearn import metrics
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import constants as const
@@ -44,7 +47,7 @@ class Model:
 	def run_rnn_dbscan(self,data):
 		'''
 		'''
-		n_neighbors = 2
+		n_neighbors = 20
 		pipeline = self.RnnDBSCAN.simple_rnn_dbscan_pipeline(KNeighborsTransformer, n_neighbors)
 		labels = pipeline.fit_predict(data)
 		db = pipeline.named_steps["rnndbscan"]
@@ -58,12 +61,5 @@ class Model:
 		if self.verbose:
 			print('Estimated number of clusters: %d' % n_clusters_)
 			print('Estimated number of noise points: %d' % n_noise_)
-			print("Homogeneity: %0.3f" % metrics.homogeneity_score(y, labels))
-			print("Completeness: %0.3f" % metrics.completeness_score(y, labels))
-			print("V-measure: %0.3f" % metrics.v_measure_score(y, labels))
-			print("Adjusted Rand Index: %0.3f"
-			      % metrics.adjusted_rand_score(y, labels))
-			print("Adjusted Mutual Information: %0.3f"
-			      % metrics.adjusted_mutual_info_score(y, labels))
 			print("Silhouette Coefficient: %0.3f"
 			      % metrics.silhouette_score(data, labels))

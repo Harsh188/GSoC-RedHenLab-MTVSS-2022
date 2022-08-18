@@ -41,19 +41,28 @@ class Data:
 		pass
 
 	def ingestion(self) -> np.ndarray:
-		"""
+		"""Data ingestion method to load in image features into memory using
+		mmap mode. All files binary files in the /scratch directory are loaded
+		and concatenated as an np.array with shape (#image_features, feature_size)
+		where feature_size = 2048.
 		
 		Args:
-			category (str): TODO
+			file (str): Current directory path in string format.
 		Returns:
 			data (List): List of image features loaded in mmap_mode.
+							Contains shape (#image_features, feature_size)
 		"""
-		data = np.empty((0,2048))
+		# data = np.empty((0,2048))
+		data = []
 		ctr = 0
 		for f in glob.glob(const.SCRATCH_PATH+'tmp/'+'*image_features*.npy'):
-			data = np.append(data,np.load(f,mmap_mode='r'),axis=0)
-			print(data.shape)
+			# data = np.append(data,np.load(f,mmap_mode='r'),axis=0)
+			data.append(np.load(f,mmap_mode='r'))
 			ctr+=1
-			if ctr==20:
-				break
-		return data
+			# print(data.shape)
+		data_arr = np.concatenate(data,axis=0)
+		print(data_arr.shape)
+		mmap_path = self.file_path+'/final_data.npy' 
+		np.save(mmap_path,data_arr)
+		data_mmap = np.load(mmap_path,mmap_mode='r')
+		return data_mmap
