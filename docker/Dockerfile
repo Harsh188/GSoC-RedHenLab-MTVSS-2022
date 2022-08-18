@@ -15,12 +15,12 @@ RUN apt-get install -y --no-install-recommends --quiet \
     cmake \
     ffmpeg \
     rsync \
-    python3-setuptools \
     openssh-client \
     libavcodec-dev \
     libavfilter-dev \
     libavformat-dev \
     libavutil-dev \
+    libsndfile1-dev
 
 # Image layer on top of base to install requirements
 # FROM tensorflow/tensorflow:2.9.0-gpu
