@@ -32,6 +32,8 @@ import logging
 from data import Data
 from model import Model
 
+import cProfile
+
 # Functions
 def parseArgs():
 	'''Processes arugments
@@ -42,9 +44,10 @@ def parseArgs():
 	parser.add_argument("--verbose",help='Print verbose statements '\
 		'to check the progress of the program')
 	parser.add_argument("--file_path",metavar="-F",help='tmp file path')
+	parser.add_argument("--mode",metavar="-M",help='Which mode to run the pipeline')
 	return parser.parse_args()
 
-def main(verbose:bool, file_path):
+def main(verbose:bool, file_path, mode:str):
 	'''This method runs RNN-DBSCAN on image features extraced from the 
 	stage one of the pipeline. Stage two results in clustered features.
 
@@ -52,7 +55,9 @@ def main(verbose:bool, file_path):
 		verbose (bool): If true it prints verbose statements to 
 			check the progress of the program
 		file_path (str): Path of current directory
-
+		mode (str): The mode in which the pipeline should be run: {opt,final}
+			Where 'opt' indicates optimization mode to perform analysis on
+			a subset of the data and 'final' indicates the production ready code.
 	Returns:
 		Nothing
 	'''
@@ -61,8 +66,12 @@ def main(verbose:bool, file_path):
 
 	# Data
 	d_obj = Data(verbose,file_path)
-	data = d_obj.ingestion()
-
+	data = None
+	if mode=='final':
+		data = d_obj.ingestion()
+	else mode ='opt'
+		data = d_obj.optimization_ingestion()
+	
 	if(verbose):
 		print("## Ingested data:")
 		print(data[0])
@@ -75,7 +84,7 @@ def main(verbose:bool, file_path):
 if __name__=='__main__':
 
 	args = parseArgs()
-	verbose, file_path = args.verbose, args.file_path
+	verbose, file_path, mode = args.verbose, args.file_path, args.mode
 
 	if(verbose):
 		print('\n=== GPU Information ===\n')
@@ -87,7 +96,11 @@ if __name__=='__main__':
 	if(verbose):
 		print('\n=== run_pipeline_stage2.py: Start ===\n')
 		print("TMP File path:",file_path)
-	main(verbose,file_path)
-
+	
+	# Call main method
+	if mode=='test'||mode=='opt':
+		cProfile.run('main(verbose,file_path,mode)')
+	else:
+		main(verbose,file_path,mode)
 	if(verbose):
 		print('\n=== run_pipeline_stage2.py: Done ===\n')
