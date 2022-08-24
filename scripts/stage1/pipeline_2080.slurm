@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -o /scratch/users/hxm471/jobs/arrayjob_%A_%a.o
-#SBATCH --time=12:00:00
+#SBATCH --time=20:00:00
 #SBATCH --mem=30gb
 #SBATCH -p gpu
 #SBATCH -C gpu2080

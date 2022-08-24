@@ -4,7 +4,8 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mem=30gb              # Assign 16gb memory; default in 1gb
 #SBATCH -o /scratch/users/hxm471/jobs/arrayjob_%A_%a.o
-#SBATCH --time=12:00:00
+#SBATCH --time=20:00:00
+#SBATCH -c 2
 
 # Load Module
 module load singularity/3.8.1
