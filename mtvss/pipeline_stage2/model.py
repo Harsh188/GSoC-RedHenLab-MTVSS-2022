@@ -47,19 +47,24 @@ class Model:
 	def run_rnn_dbscan(self,data):
 		'''
 		'''
-		n_neighbors = 20
-		pipeline = self.RnnDBSCAN.simple_rnn_dbscan_pipeline(KNeighborsTransformer, n_neighbors)
-		labels = pipeline.fit_predict(data)
-		db = pipeline.named_steps["rnndbscan"]
-		core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
-		core_samples_mask[db.core_sample_indices_] = True
+		n_neighbors = [2,5,10,15,20,25]
+		for n in n_neighbors:
+			if self.verbose:
+				print('\n### Optimization Step')
+				print('\n### n_neighbors:',n)
 
-		# Number of clusters in labels, ignoring noise if present.
-		n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-		n_noise_ = list(labels).count(-1)
+			pipeline = self.RnnDBSCAN.simple_rnn_dbscan_pipeline(KNeighborsTransformer, n)
+			labels = pipeline.fit_predict(data)
+			db = pipeline.named_steps["rnndbscan"]
+			core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
+			core_samples_mask[db.core_sample_indices_] = True
 
-		if self.verbose:
-			print('Estimated number of clusters: %d' % n_clusters_)
-			print('Estimated number of noise points: %d' % n_noise_)
-			print("Silhouette Coefficient: %0.3f"
-			      % metrics.silhouette_score(data, labels))
+			# Number of clusters in labels, ignoring noise if present.
+			n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+			n_noise_ = list(labels).count(-1)
+
+			if self.verbose:
+				print('Estimated number of clusters: %d' % n_clusters_)
+				print('Estimated number of noise points: %d' % n_noise_)
+				print("Silhouette Coefficient: %0.3f"
+				      % metrics.silhouette_score(data, labels))

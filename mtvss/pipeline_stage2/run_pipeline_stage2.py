@@ -69,7 +69,7 @@ def main(verbose:bool, file_path, mode:str):
 	data = None
 	if mode=='final':
 		data = d_obj.ingestion()
-	else mode ='opt'
+	elif mode=='opt':
 		data = d_obj.optimization_ingestion()
 	
 	if(verbose):
@@ -98,7 +98,7 @@ if __name__=='__main__':
 		print("TMP File path:",file_path)
 	
 	# Call main method
-	if mode=='test'||mode=='opt':
+	if mode=='test' or mode=='opt':
 		cProfile.run('main(verbose,file_path,mode)')
 	else:
 		main(verbose,file_path,mode)

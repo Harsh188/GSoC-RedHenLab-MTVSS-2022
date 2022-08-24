@@ -40,7 +40,7 @@ class Data:
 	def check_exist(self, file:str):
 		pass
 
-	def get_drop_indices(csv_file_path:str) -> np.ndarray:
+	def get_drop_indices(self, csv_file_path:str) -> np.ndarray:
 		"""This method is a preprocessing filter to extract only images
 			which meet a certain standard for further cluster. It useses the 
 			confidence values and the duration of the clips to determine if
@@ -55,16 +55,29 @@ class Data:
 		drop_indices=None
 		# Read csv and store as a DataFrame
 		df = pd.read_csv(csv_file_path)
+		# if self.verbose:
+		# 	print("## Orig DF:",df)
+		
 		# Get indices of low confidence values
-		df = df['confidence'] < 0.95
-		# Get indices of low delta time
-		df.drop(df[df['end']-df['start'] >= 10].index, inplace=True)
+		df_filter = df['confidence'] < 0.95
+		df = df.loc[df_filter]
+		
+		# Get indices of low and very high delta time
+		df.drop(df[df['end']-df['start'] < 10].index, inplace=True)
+		df.drop(df[df['end']-df['start'] > 100].index, inplace=True)
+		
+		# Get indices of commercials
+		df.drop(df[df['label'] == 'TitleSequence'].index, inplace=True)
+		
+		# if self.verbose:
+		# 	print("## Filtered DF:",df)
+		
 		# Get indices of rows to remove
 		drop_indices = df.index.unique()
 		
 		return drop_indices
 
-	def get_clean_arrays(arr, file_path:str) -> np.ndarray:
+	def get_clean_arrays(self, arr, file_path:str) -> np.ndarray:
 		"""This method cleans the existing features by figuring out what indices
 			to drop and then mapping it to the indicies of arrays in npy file.
 
@@ -75,17 +88,19 @@ class Data:
 			final_arr (np.ndarray): Numpy array containing final features to be used
 				for clustering.
 		"""
-		csv_file_path = file_path[:-3]+'csv'
-		drop_indices = get_drop_indices(csv_file_path)
+		csv_file_path = file_path[:-12]+'filtered.csv'
+		drop_indices = self.get_drop_indices(csv_file_path)
+		
 		final_drop_indices = np.empty(0)
 		for x in drop_indices:
-			final_drop_indices = np.concatenate(final_drop_indices, [x,x+1,x+2,x+3,x+4], axis=1)
-
+			i = x*5
+			final_drop_indices = np.concatenate((final_drop_indices, [i,i+1,i+2,i+3,i+4]))
+		final_drop_indices = final_drop_indices.astype(int)
 		if self.verbose:
 			print('\n---- Preprocessing ----\n')
-			print("## Number of features dropped:", final_drop_indices-final_drop_indices)
-
-		final_arr = np.delete(arr, final_drop_indices)
+			# print("## Number of features dropped:", final_drop_indices.size-final_drop_indices.size)
+			print("## Indices to drop:",final_drop_indices)
+		final_arr = np.delete(arr,final_drop_indices,axis=0)
 
 		return final_arr
 
@@ -107,7 +122,7 @@ class Data:
 		for f in glob.glob(const.SCRATCH_PATH+'tmp/'+'*image_features*.npy'):
 			# data = np.append(data,np.load(f,mmap_mode='r'),axis=0)
 			# Appened appropriate features
-			data.append(get_clean_arrays(np.load(f,mmap_mode='r'),f))
+			data.append(self.get_clean_arrays(np.load(f,mmap_mode='r'),f))
 			ctr+=1
 			# print(data.shape)
 		data_arr = np.concatenate(data,axis=0)
@@ -141,7 +156,7 @@ class Data:
 		ctr=0
 		for f in glob.glob(const.SCRATCH_PATH+'tmp/'+loop_1_year+'*'+loop_1_day+'*image_features*.npy'):
 			# data.append(np.load(f,mmap_mode='r'))
-			data.append(get_clean_arrays(np.load(f,mmap_mode='r'),f))
+			data.append(self.get_clean_arrays(np.load(f,mmap_mode='r'),f))
 			ctr+=1
 
 		# Year and day to look for in iter 2
@@ -151,7 +166,7 @@ class Data:
 		ctr=0
 		for f in glob.glob(const.SCRATCH_PATH+'tmp/'+loop_1_year+'*'+loop_1_day+'*image_features*.npy'):
 			# data.append(np.load(f,mmap_mode='r'))
-			data.append(get_clean_arrays(np.load(f,mmap_mode='r'),f))
+			data.append(self.get_clean_arrays(np.load(f,mmap_mode='r'),f))
 			ctr+=1
 
 		data_arr = np.concatenate(data,axis=0)
