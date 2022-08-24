@@ -76,7 +76,7 @@ TODO:
 	- [x] Train keyframe classifier
 - [x] Evaluation 1
 - [ ] Pipeline Stage Two
-    - [ ] RNN-DBSCAN Clustering
+    - [x] RNN-DBSCAN Clustering
     - [ ] Create video splits
 - [ ] Final Evaluation
 
