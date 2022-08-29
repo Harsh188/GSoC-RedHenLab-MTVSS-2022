@@ -13,15 +13,8 @@
 
 # Imports
 import numpy as np
-import matplotlib.pyplot as plt
-import tensorflow as tf
 
 import os
-from subprocess import Popen, PIPE
-import multiprocessing
-import threading
-from threading import Thread
-from queue import Queue
 
 import code, traceback, signal
 import time
@@ -87,18 +80,11 @@ if __name__=='__main__':
 	verbose, file_path, mode = args.verbose, args.file_path, args.mode
 
 	if(verbose):
-		print('\n=== GPU Information ===\n')
-		print('GPU Name:',tf.test.gpu_device_name())
-		print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-	gpu=tf.config.list_physical_devices('GPU')
-	if(len(gpu)):
-		tf.config.experimental.set_memory_growth(gpu[0], True)
-	if(verbose):
 		print('\n=== run_pipeline_stage2.py: Start ===\n')
 		print("TMP File path:",file_path)
 	
 	# Call main method
-	if mode=='test' or mode=='opt':
+	if mode=='test':
 		cProfile.run('main(verbose,file_path,mode)')
 	else:
 		main(verbose,file_path,mode)

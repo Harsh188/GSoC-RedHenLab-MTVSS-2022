@@ -19,6 +19,8 @@ import glob
 import pandas as pd
 import numpy as np
 
+from datetime import date, timedelta
+
 import os
 import sys
 
@@ -127,10 +129,38 @@ class Data:
 			# print(data.shape)
 		data_arr = np.concatenate(data,axis=0)
 		print(data_arr.shape)
-		mmap_path = self.file_path+'/final_data.npy' 
+		mmap_path = self.file_path+'/final_data.npy'
 		np.save(mmap_path,data_arr)
 		data_mmap = np.load(mmap_path,mmap_mode='r')
 		return data_mmap
+
+	def get_files_between_dates(self,data,start,end):
+		'''Method to get the features between a start and end date.
+		Args:
+			data (List): List of image features
+			start (str): Date in mm/dd/yyyy format
+			end (str): Date in mm/dd/yyyy format
+		Returns:
+			data (List): List containing concatenation image features
+		'''
+
+		start_month, start_day, start_year = start.split('/')
+		end_month, end_day, end_year = end.split('/')
+
+		start_date = date(int(start_year),int(start_month),int(start_day))
+		end_date = date(int(end_year),int(end_month),int(end_day))
+
+		delta = end_date-start_date #returns timedelta
+
+		for i in range(delta.days+1):
+			day = str(start_date+timedelta(days=i))
+			file_path = const.H_GAL_HOME_PATH+'splits/tmp/'+day+'*image_features*.npy'
+
+			for f in glob.glob(file_path):
+				data.append(self.get_clean_arrays(np.load(f,mmap_mode='r'),f))
+
+
+		return data
 
 	def optimization_ingestion(self) -> np.ndarray:
 		"""Data ingestion method to load in image features into memory using
@@ -149,32 +179,44 @@ class Data:
 		# Initialize list to store array of mmaps
 		data = []
 
+		start_days = ['08/01/1996', '08/12/1996', '08/16/1996', '08/23/1996', '09/02/1996',
+							'09/11/1996', '12/26/1996', '10/02/2000', '09/01/2002']
+		end_days = ['08/12/1996', '08/15/1996', '08/23/1996', '09/01/1996', '09/10/1996',
+							'10/17/1996', '12/27/1996', '10/06/2000', '09/06/2002']
+
+		for i in range(len(start_days)):
+			data = self.get_files_between_dates(data,start_days[i],end_days[i])
+			# if self.verbose:
+			# 	print("Data:",data)
+
 		# Year and day to look for in iter 1
-		loop_1_year = '1996'
-		loop_1_day = '02'
+		# loop_1_year = '1996'
+		# loop_1_day = '02'
 
-		ctr=0
-		for f in glob.glob(const.SCRATCH_PATH+'tmp/'+loop_1_year+'*'+loop_1_day+'*image_features*.npy'):
-			# data.append(np.load(f,mmap_mode='r'))
-			data.append(self.get_clean_arrays(np.load(f,mmap_mode='r'),f))
-			ctr+=1
+		# ctr=0
+		# for f in glob.glob(const.SCRATCH_PATH+'tmp/'+loop_1_year+'*'+loop_1_day+'*image_features*.npy'):
+		# 	# data.append(np.load(f,mmap_mode='r'))
+		# 	data.append(self.get_clean_arrays(np.load(f,mmap_mode='r'),f))
+		# 	ctr+=1
 
-		# Year and day to look for in iter 2
-		loop_1_year = '2001'
-		loop_1_day = '07'
+		# # Year and day to look for in iter 2
+		# loop_1_year = '2001'
+		# loop_1_day = '07'
 
-		ctr=0
-		for f in glob.glob(const.SCRATCH_PATH+'tmp/'+loop_1_year+'*'+loop_1_day+'*image_features*.npy'):
-			# data.append(np.load(f,mmap_mode='r'))
-			data.append(self.get_clean_arrays(np.load(f,mmap_mode='r'),f))
-			ctr+=1
+		# ctr=0
+		# for f in glob.glob(const.SCRATCH_PATH+'tmp/'+loop_1_year+'*'+loop_1_day+'*image_features*.npy'):
+		# 	# data.append(np.load(f,mmap_mode='r'))
+		# 	data.append(self.get_clean_arrays(np.load(f,mmap_mode='r'),f))
+		# 	ctr+=1
 
 		data_arr = np.concatenate(data,axis=0)
 		print(data_arr.shape)
 		mmap_path = self.file_path+'/final_data.npy' 
 		np.save(mmap_path,data_arr)
+		np.save(const.H_GAL_HOME_PATH+'splits/final_data.npy',data_arr)
+
 		data_mmap = np.load(mmap_path,mmap_mode='r')
 		return data_mmap
 
-		if self.verbose:
-			print("## Number of files ingested:",ctr)
+		# if self.verbose:
+		# 	print("## Number of files ingested:",ctr)
