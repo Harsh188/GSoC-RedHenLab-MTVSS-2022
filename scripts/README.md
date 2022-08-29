@@ -24,7 +24,7 @@ srun -p gpu -C gpu4v100 --mem=20gb --gres=gpu:1 --time=09:00:00 --pty bash
 
 Requesting CPU (example):
 ```
-srun --nodelist=compt317 --mem=60gb -N 1 --time=09:00:00 --pty bash 
+srun --nodelist=compt317 --mem=60gb -N 1 -c 40 --time=09:00:00 --pty bash 
 ```
 
 ```
