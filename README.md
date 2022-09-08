@@ -130,7 +130,7 @@ Finally the clustering stage which infact has been the hardest stage to evaluate
 
 <img src="docs/images/Final-Analysis_example_cluster.png" height=50>
 
-<img src="docs/images/Final-example_clustering_images.png" height=50>
+<img src="docs/images/example_clustering_images.png" height=50>
 
 
 ### **Challenges**
