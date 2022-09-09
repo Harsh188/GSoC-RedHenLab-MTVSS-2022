@@ -59,7 +59,12 @@
 This proposal proposes a multi-modal multi-phase pipeline to tackle television show segmentation on the Rosenthal videotape collection. The two-stage pipeline will begin with feature filtering using pre-trained classifiers and heuristic-based approaches. This stage will produce noisy title sequence segmented data containing audio, video, and possibly text. These extracted multimedia snippets will then be passed to the second pipeline stage. In the second stage, the extracted features from the multimedia snippets will be clustered using RNN-DBSCAN. Title sequence detection is possibly the most efficient path to high precision segmentation for the first and second tiers of the Rosenthal collection (which have fairly structured recordings). This detection algorithm may not bode well for the more unstructured V8+ and V4 VCR tapes in the Rosenthal collection. Therefore the goal is to produce accurate video cuts and split metadata results for the first and second tiers of the Rosenthal collection.
 
 ### **Written Material/Documentation**
-In addition to this GitHub repository, I've maintained an extensive collection of documentation through the form of blogs on my Medium acount. 
+
+As part of the Google Summer of Code application process, I had to create a detailed documentation listing out my project proposal for GSoC'22. This project proposal document can be found [here](https://drive.google.com/file/d/1tKNN-ujqXIQTCx1NIL2mA_ksoE-tX4gr/view?usp=sharing).This document contains a detailed description of the problem statement, dataset and my proposed pipeline.
+
+In addition to this GitHub repository, I've maintained an extensive collection of documentation through the form of blogs on my Medium acount. This [introductory article](https://harsh188.medium.com/gsoc-red-hen-lab-week-1-community-bonding-period-22dcce90a5e2) contains links to the goals, work done and conclusion for each week. 
+
+I created a midway progress presentation to present to all my mentors which can be found [here](https://drive.google.com/file/d/1hNDlbGv8eB_Kburo9_nT9dzPh6PL666q/view?usp=sharing).
 
 ### **Progress**
 <!-- ROADMAP -->
@@ -77,8 +82,6 @@ In addition to this GitHub repository, I've maintained an extensive collection o
     - [x] RNN-DBSCAN Clustering
     - ~~[ ] Create video splits~~
 - [x] Final Evaluation
-
-See the [open issues](https://github.com/harsh188/GSoC-RedHenLab-MTVSS-2022/issues) for a full list of proposed features (and known issues).
 
 ### **Work Done**
 
@@ -98,7 +101,7 @@ Then I fine-tuned a pre-trained ResNet50V2 from Keras by training the appended t
 
 The second phase pertains to organizing and futher filtering the features extracted from the image classification stage through the use of clustering. More specifically, the algorithm of choice is [RNN-DBSCAN](https://ieeexplore.ieee.org/abstract/document/8240674).
 
-RNN-DBSCAN is a clustering algorithm which uses reverse nearest neighbor counts, it's built to withstand large variations in cluster density and utilizes only one parameter (choice of n nearest neighbors). I have utilized an open source implementation built by ([@frankier](https://github.com/frankier/) which can be found here: [sklearn-ann](https://github.com/frankier/sklearn-ann).
+RNN-DBSCAN is a clustering algorithm which uses reverse nearest neighbor counts, it's built to withstand large variations in cluster density and utilizes only one parameter (choice of n nearest neighbors). I have utilized an open source implementation built by [@frankier](https://github.com/frankier/) which can be found here: [sklearn-ann](https://github.com/frankier/sklearn-ann).
 
 I first tried to cluster the entire courpus of features which was approximately [7,000,000 x 2048] in size. Unfortunately, this is where I ran into hardware limitations as either the array would be too large to load into memory and utilizing mmaps was overloading the page tables. To overcome this issue I tried two alternatives.
 
@@ -113,6 +116,11 @@ Since the pipeline is split into multiple stages, each working on its own modali
 Starting with the music segmentation stage, I believe that this is one of the most confident stages in the pipeline. The model used won the [MIREX 2018 Music and Speech Detection task](https://www.music-ir.org/mirex/wiki/2018:Music_and_or_Speech_Detection_Results), it has a segement-level precision of `90.5%`.
 
 Next, we move onto the image classification model. The base pre-trained ResNet50V2 model was taken from Keras which reports that it has a top-5 accuracy of `93%`. Since I fine-tuned the model, I introduced a softmax layer to record the confidence of prediction made the model for each class. The confidence of these classifications were highly varying and for that reason I filtered out images with confidence values less than `95%`.
+
+<img src="docs/images/pretrainedResNet50V2_AccuracyPlots.svg" height=70>
+<img src="docs/images/pretrainedResNet50V2_LossPlots.svg" height=70>
+
+
 
 Finally the clustering stage which infact has been the hardest stage to evaluate due to it's unsupervised nature. One of the most popular metricis to calculate the goodness of a clustering technique is the Silhouette Coefficient. This is one of the metrics used in evaluating the RNN-DBSCAN which I utilized. The Silhouette Coefficient was approximately 0.3 which is significantly low and indicates that the distance between the clusters is not significant. Since the clusters were computed on a small subset, it is highly likely that the mp4 files used for clustering didn't have a lot of overlapping shows. Since this coefficient score isn't indiciative of what exactly is going wrong, I proceeded to gather common statistical measures such as mean median mode and standard deviation.
 
@@ -130,7 +138,7 @@ Finally the clustering stage which infact has been the hardest stage to evaluate
 
 <img src="docs/images/Final-Analysis_example_cluster.png" height=50>
 
-<img src="docs/images/example_clustering_images.png" height=50>
+<img src="docs/images/example_clustering_images.png" height=100>
 
 
 ### **Challenges**
@@ -232,7 +240,9 @@ Check `/scripts` for more information on the job submissions and slurm files.
 <!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**. Take a look at the <a href="#What's Next?">What's Next section</a> for features which you could work on! 
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**. Take a look at the <a href="#What's Next?">What's Next section</a> for features which you could work on!
+
+See the [open issues](https://github.com/harsh188/GSoC-RedHenLab-MTVSS-2022/issues) for a full list of proposed features (and known issues).
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!
