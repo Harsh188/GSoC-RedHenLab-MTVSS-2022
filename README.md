@@ -147,13 +147,13 @@ I also took the time to demonstrate the various outputs across the different sta
 
 Starting with the music segmentation stage, this stage produces and stores the mfcc, loge features. Additionally it stores the start and stop times of segments where music was detected in a csv file.
 
-<img src="docs/images/Metadata_stored.png" height=100>
+<img src="docs/images/Metadata_stored.png" height=150>
 
-<img src="docs/images/music_segmentation_csv_output.png" height=100>
+<img src="docs/images/music_segmentation_csv_output.png" height=500>
 
 Next, for the image classification stage the following output shows the annotated keyframes.
 
-<img src="docs/images/stage-2_output.png" height=100>
+<img src="docs/images/stage-2_output.png" height=500>
 
 Finally lets take a look at one cluster within the file.
 
