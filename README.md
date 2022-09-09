@@ -117,8 +117,8 @@ Starting with the music segmentation stage, I believe that this is one of the mo
 
 Next, we move onto the image classification model. The base pre-trained ResNet50V2 model was taken from Keras which reports that it has a top-5 accuracy of `93%`. Since I fine-tuned the model, I introduced a softmax layer to record the confidence of prediction made the model for each class. The confidence of these classifications were highly varying and for that reason I filtered out images with confidence values less than `95%`.
 
-<img src="docs/images/pretrainedResNet50V2_AccuracyPlots.svg" width=200 height=200>
-<img src="docs/images/pretrainedResNet50V2_LossPlots.svg" width=200 height=200>
+<img src="docs/images/pretrainedResNet50V2_AccuracyPlots.svg" width=400 height=400>
+<img src="docs/images/pretrainedResNet50V2_LossPlots.svg" width=400 height=400>
 
 
 
