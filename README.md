@@ -193,19 +193,27 @@ If I had to make a list of the tools/concepts I've learned during this project, 
 
 **Do you want to be part of Red Hen Lab!?** Well if this project interests you then you could work on improving this existing project since there are still a few features which could be implemented to make it better!
 
-(1) Closed Captioning Filtering
+(1) Closed Captioning Exploration
 
-This feature of using the text modality found in the closed caption files to help validatate and futher process the stage-2 outputs was one that I didn't have time to explore. I believe that by exploring these CC files through string matching by trying to find keywords used during transitions between shows would help analyze the structure of these mp4 files. Professor Francis Steen futher suggested that we could essentially build algorithms like apriori which are goverened by a set of rules to process and analyze these stage-1 outputs.
+This feature of using the text modality found in the closed caption files to help validatate and futher process the stage-2 outputs was one that I didn't have time to explore. I believe that by exploring these CC files through string matching by trying to find keywords used during transitions between shows would help analyze the structure of these mp4 files.
+
+<!-- Professor Francis Steen futher suggested that we could essentially build algorithms like apriori which are goverened by a set of rules to process and analyze these stage-1 outputs. -->
+
+(2) Image Classification Improvement
 
 Additionally, another way to improve the results of the image classification stage is by increasing the size of the labeled dataset upon which the ResNet50V2 model trains on. By creating a larger dataset, it allows the model to fine-tune and converge better than before. Alternate image classification models could also be explored.
 
-(2) RNN-DBSCAN Optimization
+(2) RNN-DBSCAN Tuning & Validation
 
-One area which I feel like I could have spent more time on is the clustering phase. Due to it's unsupervised black-box nature, it's hard to understand and explain what exactly is going on with the RNN-DBSCAN algorithm. I wasn't able to produce explicitly profound results from this phase and I think one way in which it could be improved is by running the clustering algorithm on the entire corpus of extracted features. Since I'm currently only opperating on a subset (aprox 200,000 image features) there may not be sufficient data to produce distinct clusters.  
+One area which I feel like I could have spent more time on is the clustering phase. Due to it's unsupervised black-box nature, it's hard to understand and explain what exactly is going on with the RNN-DBSCAN algorithm. However, from the results gathered in this report, there is a slight indication that the Silhouette Coefficient is not a good indicative measure of performance. For this reason, alternative custom validation metrics could be explored.
 
 (3) GUI for UCLA annotators
 
-Since this pipeline is built to annotate the Rosenthal collection, there is a great scope to help the UCLA annotators produce manual corrections/segmentations by using the metadata produced by this pipeline. A GUI or spreadsheet type feature which would allow these annotators to easily access the metatdata to speed up the labeling process.  
+Since this pipeline is built to annotate the Rosenthal collection, there is a great scope to help the UCLA annotators produce manual corrections/segmentations by using the metadata produced by this pipeline. A GUI or spreadsheet type feature which would allow these annotators to easily access the metatdata to speed up the labeling process. This feature would also have to introduce a more refined data collection and tracking process. The data collected across the various stages should be able to be mapped with the outputs from the previous or next stage.
+
+(4) Multi-modal clustering:
+
+Finally, one feature which I didn't have time to work on was including audio features into the RNN-DBSCAN clustering. A majority of the audio features have been collected and stored on gallina, therefore this data is available to be used for futher clustering. There is also a possibility to combine the image features and audio features during clustering.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
