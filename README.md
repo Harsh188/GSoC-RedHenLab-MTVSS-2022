@@ -141,9 +141,9 @@ The following table lists out the various metrics used to measure performance of
 | Stage       | Silhouette Coefficient    | N Neighbors | Mean | Median | Mode | Standard Deviation |
 | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
 | Phase-2 - RNN-DBSCAN | 0.3 | 2 | 6.92 | 4.0 | 3 | 202.87 |
-| Phase-2 - RNN-DBSCAN | 0.3 | 3 | 10.78 | 5.0 | 5 | 307.90 |
-| Phase-2 - RNN-DBSCAN | 0.3 | 4 | 16.66 | 5.0 | 5 | 606.35 |
-| Phase-2 - RNN-DBSCAN | 0.3 | 5 | 36.88 | 9.0 | 6 | 1333.12 |
+| Phase-2 - RNN-DBSCAN | 0.216 | 3 | 10.78 | 5.0 | 5 | 307.90 |
+| Phase-2 - RNN-DBSCAN | 0.187 | 4 | 16.66 | 5.0 | 5 | 606.35 |
+| Phase-2 - RNN-DBSCAN | -0.103 | 5 | 36.88 | 9.0 | 6 | 1333.12 |
 
 I also took the time to demonstrate the various outputs across the different stages for a specific file to illustrate how the metadata evolves over the various stages. The following sequence of images are the ouptputs for the file `1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB.mp4`.
 
