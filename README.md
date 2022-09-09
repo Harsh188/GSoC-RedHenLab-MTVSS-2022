@@ -119,9 +119,11 @@ Next, we move onto the image classification model. The base pre-trained ResNet50
 
 
 **The accuracy versus epoch has been plotted in the figure below:**
+
 <img src="docs/images/pretrainedResNet50V2_AccuracyPlots.svg" width=400 height=400>
 
 **The loss versus epoch has been plotted in the figure below:**
+
 <img src="docs/images/pretrainedResNet50V2_LossPlots.svg" width=400 height=400>
 
 Finally the clustering stage which infact has been the hardest stage to evaluate due to it's unsupervised nature. One of the most popular metricis to calculate the goodness of a clustering technique is the Silhouette Coefficient. This is one of the metrics used in evaluating the RNN-DBSCAN which I utilized. The Silhouette Coefficient was approximately 0.3 which is significantly low and indicates that the distance between the clusters is not significant. Since the clusters were computed on a small subset, it is highly likely that the mp4 files used for clustering didn't have a lot of overlapping shows. Since this coefficient score isn't indiciative of what exactly is going wrong, I proceeded to gather common statistical measures such as mean median mode and standard deviation.
@@ -147,7 +149,7 @@ I also took the time to demonstrate the various outputs across the different sta
 
 Starting with the music segmentation stage, this stage produces and stores the mfcc, loge features. Additionally it stores the start and stop times of segments where music was detected in a csv file.
 
-<img src="docs/images/Metadata_stored.png" height=150>
+<img src="docs/images/Metadata_stored.png" height=110>
 
 <img src="docs/images/music_segmentation_csv_output.png" height=500>
 
