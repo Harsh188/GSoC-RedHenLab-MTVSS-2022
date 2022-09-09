@@ -117,8 +117,8 @@ Starting with the music segmentation stage, I believe that this is one of the mo
 
 Next, we move onto the image classification model. The base pre-trained ResNet50V2 model was taken from Keras which reports that it has a top-5 accuracy of `93%`. Since I fine-tuned the model, I introduced a softmax layer to record the confidence of prediction made the model for each class. The confidence of these classifications were highly varying and for that reason I filtered out images with confidence values less than `95%`.
 
-<img src="docs/images/pretrainedResNet50V2_AccuracyPlots.svg" height=70>
-<img src="docs/images/pretrainedResNet50V2_LossPlots.svg" height=70>
+<img src="docs/images/pretrainedResNet50V2_AccuracyPlots.svg" width=500 height=100>
+<img src="docs/images/pretrainedResNet50V2_LossPlots.svg" width=500 height=100>
 
 
 
@@ -138,7 +138,7 @@ Finally the clustering stage which infact has been the hardest stage to evaluate
 
 <img src="docs/images/Final-Analysis_example_cluster.png" height=50>
 
-<img src="docs/images/example_clustering_images.png" height=100>
+<img src="docs/images/example_clustering_images.png" height=150>
 
 
 ### **Challenges**
