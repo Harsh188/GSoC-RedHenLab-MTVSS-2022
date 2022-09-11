@@ -183,10 +183,10 @@ def main(job_num:int, verbose:bool, file_path):
 		job_num (int): Array Job number
 		verbose (bool): If true it prints verbose statements to 
 			check the progress of the program
+		file_path (str): Path of current directory
 
 	Returns:
-		TODO
-
+		Nothing
 	'''
 	if(verbose):
 		print("\n\n+++ Step 1: Data ingestion +++\n\n")
