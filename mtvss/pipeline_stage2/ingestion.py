@@ -145,9 +145,22 @@ if __name__=='__main__':
 		print('\n=== ingestion.py: Start ===\n')
 		print("TMP File path:",file_path)
 
-	# Call main method
-	ing_obj = Ingestion(verbose,file_path)
-	ing_obj.make_npy()
+	if file_path=='rds':
+		ing_obj = Ingestion(verbose,file_path)
+		ctr=0
+		print('Checking file index')
+		for f in glob.glob(const.H_GAL_HOME_PATH+'splits/tmp/'+'*image_features.npy'):
+			temp_arr = ing_obj.get_clean_arrays(np.load(f,mmap_mode='r'),f)
+			if(f==const.H_GAL_HOME_PATH+'splits/tmp/'+
+				'1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB_image_features.npy'):
+				print(ctr)
+				print(ctr+temp_arr.shape[0])
+			ctr+=temp_arr.shape[0]
+
+	else:
+		# Call main method
+		ing_obj = Ingestion(verbose,file_path)
+		ing_obj.make_npy()
 
 	if(verbose):
 		print('\n=== ingestion.py: Done ===\n')
