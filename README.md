@@ -123,6 +123,7 @@ In addition to the quantitative analysis I will be including screenshots of the 
 <img src="docs/images/Metadata_stored.png" height=110>
 Fig.1 - Metadata output.
 
+
 The metadata in the screenshot above contains `[loge,mfcc,csv,feats.csv,image_features,image_filtered.csv]`. The first four elements in this list pertain to the outputs obtained from stage-1. 
 
 Starting with the music segmentation stage, I believe that this is one of the most confident stages in the pipeline. The model used won the [MIREX 2018 Music and Speech Detection task](https://www.music-ir.org/mirex/wiki/2018:Music_and_or_Speech_Detection_Results) and has a segment-level precision of `90.5%`. Now the screenshot below of `1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB.csv` shows the structure in which I've stored the timestamps. It has three columns `[labels,start,stop]` where the start and stop timestamps indicate the presence of music.
