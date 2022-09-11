@@ -32,10 +32,18 @@
     <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
-          <li><a href="#Roadmap">Roadmap</a></li>
-          <li><a href="#Phase-1">Roadmap</a></li>
-          <li><a href="#Phase-2">Roadmap</a></li>
-          <li><a href="#Final Analysis">Roadmap</a></li>
+          <li><a href="#aim">Aim</a></li>
+          <li><a href="#written-materialdocumentation">Written Material/Documentation</a></li>
+          <li><a href="#roadmap">Roadmap</a></li>
+          <li><a href="#work-done">Work Done</a></li>
+          <ul>
+            <li><a href="#phase-1">Roadmap</a></li>
+            <li><a href="#phase-2">Roadmap</a></li>
+            <li><a href="#final-analysis">Roadmap</a></li>
+          </ul>
+          <li><a href="#challenges">Challenges</a></li>
+          <li><a href="#learnings">Learnings</a></li>
+          <li><a href="#whats-next">What's Next?</a></li>
       </ul>
     </li>
     <li>
@@ -171,7 +179,7 @@ Fig.6 - Keyframe indicies within cluster 8. <br/><br/>
 <img src="docs/images/example_clustering_images.png" height=150>
 Fig.7 - Mapped keyframes for indicies from Fig.6 with an addition of keyframe index 65. <br/><br/>
 
-
+Overall, the statistical measures combined with the visual output of the RNN-DBSCAN clustering algorithm indicates the inaccurate measurement of Silhouette coefficient. The Silhouette coefficient includes the relationship between pairs which we already know to be in the same segment however, ideally these pairs should be excluded from consideration during the calculation.
 
 ### **Challenges**
 
@@ -185,7 +193,7 @@ One of the most frustrating parts of my project was the lack of direct access to
 
 Since this project deals with processing huge amounts of data, it had to be as efficient as possible. During the first few weeks of the coding phase, I spent a significant chunk of my time modifying the inaSpeechSegmenter library to incorporate multithreading. I additionally incorporated consumer-producer threads to ensure that the files which are being copied over to the GPU node did not result in an memory overflow. In doing this I was able to process 8 files at a time without overloading the memory.
 
-(3) Output tracing
+(3) Output Tracing
 
 
 
