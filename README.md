@@ -120,22 +120,28 @@ Since the pipeline is split into multiple stages, each working on its own modali
 
 In addition to the quantitative analysis I will be including screenshots of the outputs across the different stages to visually illustrate how the metadata evolves over the various systems. Firstly, the screenshot depicted below is a screenshot of the various metadata collected for the file `1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB.mp4`.
 
-<figure>
-  <img src="docs/images/Metadata_stored.png" height=110>
-  <figcaption style='text-align: : center;'>Fig. 1 - Collected metadata for 1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB.mp4</figcaption>
-</figure>
+<img src="docs/images/Metadata_stored.png" height=110>
+Fig.1 - Metadata output.
 
-Starting with the music segmentation stage, I believe that this is one of the most confident stages in the pipeline. The model used won the [MIREX 2018 Music and Speech Detection task](https://www.music-ir.org/mirex/wiki/2018:Music_and_or_Speech_Detection_Results) and has a segment-level precision of `90.5%`.
+The metadata in the screenshot above contains `[loge,mfcc,csv,feats.csv,image_features,image_filtered.csv]`. The first four elements in this list pertain to the outputs obtained from stage-1. 
+
+Starting with the music segmentation stage, I believe that this is one of the most confident stages in the pipeline. The model used won the [MIREX 2018 Music and Speech Detection task](https://www.music-ir.org/mirex/wiki/2018:Music_and_or_Speech_Detection_Results) and has a segment-level precision of `90.5%`. Now the screenshot below of `1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB.csv` shows the structure in which I've stored the timestamps. It has three columns `[labels,start,stop]` where the start and stop timestamps indicate the presence of music.
+
+<img src="docs/images/music_segmentation_csv_output.png" height=500>
+Fig.2 - Music segmentation output.
 
 Next, we move onto the image classification model. The base pre-trained ResNet50V2 model was taken from Keras, which reports that it has a top-5 accuracy of `93%`. Since I fine-tuned the model, I introduced a softmax layer to record the confidence of the predictions made by the model for each class. The confidence of these classifications was highly variable, and for that reason, I filtered out images with confidence values of less than `95%`.
 
-**The accuracy versus epoch has been plotted in the figure below:**
-
 <img src="docs/images/pretrainedResNet50V2_AccuracyPlots.svg" width=400 height=400>
-
-**The loss versus epoch has been plotted in the figure below:**
+Fig.3 - Accuracy vs Epoch for the image classifier.
 
 <img src="docs/images/pretrainedResNet50V2_LossPlots.svg" width=400 height=400>
+Fig.4 - Loss vs Epoch for the image classifier.
+
+In the previous output of `1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB.csv` depicted in `Fig.1` we saw the start and stop range for music intervals. Now utilizing that range, I extract five images from each interval. In the screenshot below, each row represents the five keyframes from one music interval.
+
+<img src="docs/images/stage-2_output.png" height=500>
+Fig.5 - Keyframes extracted from music segmentation intervals.
 
 **The following table depicts the accuracy for the stages in the first phase of the pipeline:**
 
@@ -157,22 +163,14 @@ As Frankie noted in our of our meetings, relying on one metric doesn't provide a
 | Phase-2 - RNN-DBSCAN | 0.187 | 4 | 16.66 | 5.0 | 5 | 606.35 |
 | Phase-2 - RNN-DBSCAN | -0.103 | 5 | 36.88 | 9.0 | 6 | 1333.12 |
 
-I also took the time to demonstrate the various outputs across the different stages for a specific file to illustrate how the metadata evolves over the various stages. The following sequence of images are the ouptputs for the file `1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB.mp4`.
-
-Starting with the music segmentation stage, this stage produces and stores the mfcc, loge features. Additionally it stores the start and stop times of segments where music was detected in a csv file.
-
-
-<img src="docs/images/music_segmentation_csv_output.png" height=500>
-
-Next, for the image classification stage the following output shows the annotated keyframes.
-
-<img src="docs/images/stage-2_output.png" height=500>
-
-Finally lets take a look at one cluster within the file.
+To get a visual understanding of what one of the clusters looks like, I handpicked a cluster and printed out all of the images within that cluster. In order to do this I had to get the indices of these images and then manually backtrack to the file and print out the keyframes. `Fig.6` shows the output for cluster 8 which contains `[61,62,63,64]`. I traced these images back and plotted them with an additional index `[65]` to contrast the previous images. This output can be observed in `Fig.7`.
 
 <img src="docs/images/Final-Analysis_example_cluster.png" height=100>
+Fig.6 - Keyframe indicies within cluster 8.
 
 <img src="docs/images/example_clustering_images.png" height=150>
+Fig.7 - Mapped keyframes for indicies from Fig.6 with an addition of keyframe index 65.
+
 
 
 ### **Challenges**
