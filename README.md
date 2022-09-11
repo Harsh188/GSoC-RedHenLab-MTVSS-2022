@@ -37,9 +37,9 @@
           <li><a href="#roadmap">Roadmap</a></li>
           <li><a href="#work-done">Work Done</a></li>
           <ul>
-            <li><a href="#phase-1">Roadmap</a></li>
-            <li><a href="#phase-2">Roadmap</a></li>
-            <li><a href="#final-analysis">Roadmap</a></li>
+            <li><a href="#phase-1">Phase-1</a></li>
+            <li><a href="#phase-2">Phase-2</a></li>
+            <li><a href="#final-analysis">Final Analysis</a></li>
           </ul>
           <li><a href="#challenges">Challenges</a></li>
           <li><a href="#learnings">Learnings</a></li>
@@ -193,9 +193,11 @@ One of the most frustrating parts of my project was the lack of direct access to
 
 Since this project deals with processing huge amounts of data, it had to be as efficient as possible. During the first few weeks of the coding phase, I spent a significant chunk of my time modifying the inaSpeechSegmenter library to incorporate multithreading. I additionally incorporated consumer-producer threads to ensure that the files which are being copied over to the GPU node did not result in an memory overflow. In doing this I was able to process 8 files at a time without overloading the memory.
 
-(3) Output Tracing
+(3) Output Tracing Across Files
 
+During the <a href="#final-analysis">Final Analysis</a> section of this report I visually demonstrated the outputs across the various stages for the file `1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB`. I have manually collected and computed these index tracings. This is quite inefficient and prone to error. It has also inhibited me from gathering keyframs which span multiple files.
 
+I often drop and manipulate the outputs in each metadata file and for that reason the indicies don't linearly translate across the various outputs. This is an inherent design flaw in the data pipeline. It is also one of the first features which needs to be fixed prior to working on the future additions proposed in the <a href="#whats-next">What's Next?</a> section.
 
 ### **Learnings**
 Overall, I've learned a significant amount throughout the time I've spent to develop this project. I have to give a huge thanks to my dear mentor [Frankie Robertson](https://frankie.robertson.name/), he helped elevate this project to great heights. He has consistently provided me with an abundant of relevant libraries, tutorials, papers and even got his hands dirty by helping me debugging issues that I'd be stuck on.
