@@ -121,8 +121,7 @@ Since the pipeline is split into multiple stages, each working on its own modali
 In addition to the quantitative analysis I will be including screenshots of the outputs across the different stages to visually illustrate how the metadata evolves over the various systems. Firstly, the screenshot depicted below is a screenshot of the various metadata collected for the file `1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB.mp4`.
 
 <img src="docs/images/Metadata_stored.png" height=110>
-Fig.1 - Metadata output.
-
+Fig.1 - Metadata output. <br/>
 
 The metadata in the screenshot above contains `[loge,mfcc,csv,feats.csv,image_features,image_filtered.csv]`. The first four elements in this list pertain to the outputs obtained from stage-1. 
 
