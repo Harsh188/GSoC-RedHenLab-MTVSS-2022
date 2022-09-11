@@ -31,6 +31,12 @@
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
+      <ul>
+          <li><a href="#Roadmap">Roadmap</a></li>
+          <li><a href="#Phase-1">Roadmap</a></li>
+          <li><a href="#Phase-2">Roadmap</a></li>
+          <li><a href="#Final Analysis">Roadmap</a></li>
+      </ul>
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
@@ -56,15 +62,15 @@
 - Francis Steen
 
 ### **Aim**
-This proposal proposes a multi-modal multi-phase pipeline to tackle television show segmentation on the Rosenthal videotape collection. The two-stage pipeline will begin with feature filtering using pre-trained classifiers and heuristic-based approaches. This stage will produce noisy title sequence segmented data containing audio, video, and possibly text. These extracted multimedia snippets will then be passed to the second pipeline stage. In the second stage, the extracted features from the multimedia snippets will be clustered using RNN-DBSCAN. Title sequence detection is possibly the most efficient path to high precision segmentation for the first and second tiers of the Rosenthal collection (which have fairly structured recordings). This detection algorithm may not bode well for the more unstructured V8+ and V4 VCR tapes in the Rosenthal collection. Therefore the goal is to produce accurate video cuts and split metadata results for the first and second tiers of the Rosenthal collection.
+This proposal proposes a multi-modal multi-phase pipeline to tackle television show segmentation on the Rosenthal videotape collection. The two-phase pipeline begins with feature filtering using pre-trained classifiers and heuristic-based approaches. The first phase produce noisy title sequence segmented data containing audio, and annotated keyframes. These extracted snippets are then passed to the second pipeline phase. In the second phase, the extracted features from the keyframe images are clustered using RNN-DBSCAN. Title sequence detection is possibly the most efficient path to high precision segmentation for the first and second tiers of the Rosenthal collection (which have fairly structured recordings). This detection algorithm may not bode well for the more unstructured V8+ and V4 VCR tapes in the Rosenthal collection. Therefore the goal is to produce accurate video cuts and split metadata results for the first tier of the Rosenthal collection.
 
 ### **Written Material/Documentation**
 
 As part of the Google Summer of Code application process, I had to create a detailed documentation listing out my project proposal for GSoC'22. This project proposal document can be found [here](https://drive.google.com/file/d/1tKNN-ujqXIQTCx1NIL2mA_ksoE-tX4gr/view?usp=sharing).This document contains a detailed description of the problem statement, dataset and my proposed pipeline.
 
-In addition to this GitHub repository, I've maintained an extensive collection of documentation through the form of blogs on my Medium acount. This [introductory article](https://harsh188.medium.com/gsoc-red-hen-lab-week-1-community-bonding-period-22dcce90a5e2) contains links to the goals, work done and conclusion for each week. 
+In addition to this GitHub repository, I've maintained an extensive collection of weekly blog posts on my Medium acount. This [introductory article](https://harsh188.medium.com/gsoc-red-hen-lab-week-1-community-bonding-period-22dcce90a5e2) contains links to the goals, work done and conclusion for each week.
 
-I created a midway progress presentation to present to all my mentors which can be found [here](https://drive.google.com/file/d/1hNDlbGv8eB_Kburo9_nT9dzPh6PL666q/view?usp=sharing).
+During week 6, which marks the midway through the GSoC coding phase, I created a visual presentation to present to all my mentors which can be found [here](https://drive.google.com/file/d/1hNDlbGv8eB_Kburo9_nT9dzPh6PL666q/view?usp=sharing).
 
 ### **Progress**
 <!-- ROADMAP -->
@@ -80,43 +86,48 @@ I created a midway progress presentation to present to all my mentors which can 
 - [x] Evaluation 1
 - [x] Pipeline Stage Two
     - [x] RNN-DBSCAN Clustering
-    - ~~[ ] Create video splits~~
 - [x] Final Evaluation
 
 ### **Work Done**
 
-#### Phase 1
+#### Phase-1
 
-The first stage is what I would call a “feature filtering” process for the second stage. In more descriptive terms, the first stage will first run through a pre-trained music classifier and then filter false positives using image based keyframe classifier (which I intend to train) to identify and extract title sequence boundary time of each program. This extracted noisy data will then be fed to clustering algorithms grouped by modalities.
+The first phase is what I would call a "feature filtering" process for the second phase. In more descriptive terms, the first phase will first run through a pre-trained music classifier and then filter false positives using a fine-tuned ResNet50V2 image-based keyframe classifier to identify and extract the title sequence boundary time of each program. This extracted noisy data is then fed to clustering algorithms grouped by modalities.
 
-For the pre-trained audio classifier I utilized the inaSpeechSegmenter open-source library. However, the code had suboptimal performance on long and abundant mp4 files. For this reason I made drastic improvemnts to the library by introducing multithreading and input file splitting. Additionally, I made incremental changes to the generator function for improved performance. Overall the increase in efficiency and performance twofold and allowed me to process the Rosenthal collection with relative speed.
+For the pre-trained audio classifier, I utilized the inaSpeechSegmenter open-source library. However, the code had suboptimal performance on long and abundant MP4 files. For this reason, I made drastic improvements to the library by introducing multithreading and input file splitting. Additionally, I made incremental changes to the generator function for improved performance. Overall, the increase in efficiency and performance was twofold and allowed me to process the Rosenthal collection with relative speed.
 
-Moving on I futher optimized my pipeline by implementing producer-consumer threads allowing for efficient memory usage on the compute nodes. With my producer thread queue size set to 8, I was able to download and process the mp4 files in parallel with suffcient memory. To assure the quality and reusability of my code, I integrated multiple checks to ensure that the process would not be repeated on already segmented files.
+Moving on, I further optimized my pipeline by implementing producer-consumer threads, which allow for efficient memory usage on the compute nodes. With my producer thread queue size set to 8, I was able to download and process the mp4 files in parallel with sufficient memory. To assure the quality and reusability of my code, I integrated multiple checks to ensure that the process would not be repeated on already segmented files.
 
-After extracting the audio features and music segementation timestamps from the mp4 files, I moved on to the second stage of phase 1. In this stage I extracted and manually annotated approximately 4000 images into three different classes {commercial, title sequence, unknown}. I futher extracted an additionall 1000 images from the commercial CSV data provided by Professor Tim Groeling by an experiment conducted through UCLA. In total my image dataset consisted about 4000 images split between commercial and title sequence labels.
+After extracting the audio features and music segmentation timestamps from the mp4 files, I moved on to the second stage of phase 1. In this stage, I extracted and manually annotated approximately 4000 images into three different classes: "commercial, title sequence, and unknown". I further extracted an additional 1000 images from the commercial CSV data provided by Professor Tim Groeling in an experiment conducted through UCLA. In total, my image dataset consisted of about 4000 images split between commercial and title sequence labels.
 
-Then I fine-tuned a pre-trained ResNet50V2 from Keras by training the appended top most dense layers using the manually annotated data. The validation accuracy of the model reached an astonishing 90%. For a real-world application, this accuracy levels were adequate for the work at hand. By saving the weights, I integrated the model as part of the phase-1 pipeline to filter out the unkown "commercials" generated by the music segmentation.
+Then I fine-tuned a pre-trained ResNet50V2 from Keras by training the appended top most dense layers using the manually annotated data. The validation accuracy of the model reached an astonishing 90%. For a real-world application, these accuracy levels were adequate for the work at hand. By saving the weights, I integrated the model as part of the phase-1 pipeline to filter out the unkown "commercials" generated by the music segmentation.
 
-#### Phase 2
+#### Phase-2
 
-The second phase pertains to organizing and futher filtering the features extracted from the image classification stage through the use of clustering. More specifically, the algorithm of choice is [RNN-DBSCAN](https://ieeexplore.ieee.org/abstract/document/8240674).
+The second phase pertains to organizing and further filtering the features extracted from the image classification stage through the use of clustering. More specifically, the algorithm of choice is [RNN-DBSCAN](https://ieeexplore.ieee.org/abstract/document/8240674).
 
-RNN-DBSCAN is a clustering algorithm which uses reverse nearest neighbor counts, it's built to withstand large variations in cluster density and utilizes only one parameter (choice of n nearest neighbors). I have utilized an open source implementation built by [@frankier](https://github.com/frankier/) which can be found here: [sklearn-ann](https://github.com/frankier/sklearn-ann).
+RNN-DBSCAN is a clustering algorithm that uses reverse nearest neighbor counts. It's built to withstand large variations in cluster density and utilizes only one parameter (choice of n nearest neighbors). I have utilized an open source implementation built by [@frankier](https://github.com/frankier/) which can be found here: [sklearn-ann](https://github.com/frankier/sklearn-ann).
 
-I first tried to cluster the entire courpus of features which was approximately [7,000,000 x 2048] in size. Unfortunately, this is where I ran into hardware limitations as either the array would be too large to load into memory and utilizing mmaps was overloading the page tables. To overcome this issue I tried two alternatives.
+I first tried to cluster the entire courpus of features, which was approximately `(7,000,000, 2048)` in size. Unfortunately, this is where I ran into hardware limitations, as either the array would be too large to load into memory or utilizing mmaps was overloading the page tables. To overcome this issue, I tried two alternatives.
 
-Firstly, I used a much smaller subset to run the clustering algorithm. This subset consisted of a few hundered thousand features. Initially I created these subsets using the same day of the week across a year in hopes of finding similar shows and features. Upon consulting with Professor Tim Groeling, I then changed the subset to include the start and stop dates extracted from the Rosenthal VCR Settings sheet. This spreadsheet consisted of a few start and stop dates during which the same VCR settings were used.
+Firstly, I used a much smaller subset to run the clustering algorithm. This subset consisted of a few hundred thousand features. Initially, I created these subsets using the same day of the week across a year in hopes of finding similar shows and features. Upon consulting with Professor Tim Groeling, I then changed the subset to include the start and stop dates extracted from the Rosenthal VCR Settings sheet. This spreadsheet consisted of a few start and stop dates during which the same VCR settings were used.
 
-The other approach as, advised by Frankie, was to stream the features as bytes into a binary file and then open the final binary file with all of the features as one mmaped array. However, due to a lack of time, I was not able to fully integrate this suggestion.
+The other approach, advised by Frankie, was to stream the features as bytes into a binary file and then open the final binary file with all of the features as one mmaped array. However, due to a lack of time, I was not able to fully integrate this suggestion.
 
 #### Final Analysis
 
-Since the pipeline is split into multiple stages, each working on its own modality, comming up with one metric to evaluate the entire pipeline is quite difficult. For this reason, the individual stages have been evaluated independently from one another. 
+Since the pipeline is split into multiple stages, each working on its own modality, coming up with one metric to evaluate the entire pipeline is quite difficult. For this reason, the individual stages have been evaluated independently from one another.
 
-Starting with the music segmentation stage, I believe that this is one of the most confident stages in the pipeline. The model used won the [MIREX 2018 Music and Speech Detection task](https://www.music-ir.org/mirex/wiki/2018:Music_and_or_Speech_Detection_Results), it has a segement-level precision of `90.5%`.
+In addition to the quantitative analysis I will be including screenshots of the outputs across the different stages to visually illustrate how the metadata evolves over the various systems. Firstly, the screenshot depicted below is a screenshot of the various metadata collected for the file `1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB.mp4`.
 
-Next, we move onto the image classification model. The base pre-trained ResNet50V2 model was taken from Keras which reports that it has a top-5 accuracy of `93%`. Since I fine-tuned the model, I introduced a softmax layer to record the confidence of prediction made the model for each class. The confidence of these classifications were highly varying and for that reason I filtered out images with confidence values less than `95%`.
+<figure>
+  <img src="docs/images/Metadata_stored.png" height=110>
+  <figcaption style='text-align: : center;'>Fig. 1 - Collected metadata for 1996-08-01_0000_US_00017469_V2_VHS52_MB19_E4_MB.mp4</figcaption>
+</figure>
 
+Starting with the music segmentation stage, I believe that this is one of the most confident stages in the pipeline. The model used won the [MIREX 2018 Music and Speech Detection task](https://www.music-ir.org/mirex/wiki/2018:Music_and_or_Speech_Detection_Results) and has a segment-level precision of `90.5%`.
+
+Next, we move onto the image classification model. The base pre-trained ResNet50V2 model was taken from Keras, which reports that it has a top-5 accuracy of `93%`. Since I fine-tuned the model, I introduced a softmax layer to record the confidence of the predictions made by the model for each class. The confidence of these classifications was highly variable, and for that reason, I filtered out images with confidence values of less than `95%`.
 
 **The accuracy versus epoch has been plotted in the figure below:**
 
@@ -126,17 +137,18 @@ Next, we move onto the image classification model. The base pre-trained ResNet50
 
 <img src="docs/images/pretrainedResNet50V2_LossPlots.svg" width=400 height=400>
 
-Finally the clustering stage which infact has been the hardest stage to evaluate due to it's unsupervised nature. One of the most popular metricis to calculate the goodness of a clustering technique is the Silhouette Coefficient. This is one of the metrics used in evaluating the RNN-DBSCAN which I utilized. The Silhouette Coefficient was approximately 0.3 which is significantly low and indicates that the distance between the clusters is not significant. Since the clusters were computed on a small subset, it is highly likely that the mp4 files used for clustering didn't have a lot of overlapping shows. Since this coefficient score isn't indiciative of what exactly is going wrong, I proceeded to gather common statistical measures such as mean median mode and standard deviation.
-
-The following table depicts the accuracy for the stages in the first phase of the pipeline:
+**The following table depicts the accuracy for the stages in the first phase of the pipeline:**
 
 | Stage       | Accuracy    |
 | ----------- | ----------- |
 | Stage-1 - Music Segmentation      | 90.5%       |
 | Stage-2 - Image Classification    | 93-95%      |
 
+Finally, the clustering stage, which in fact has been the hardest stage to evaluate due to its unsupervised nature. One of the most popular metrics to calculate the goodness of a clustering technique is the Silhouette coefficient. The results from the Silhouette coefficient metric were significantly low when evaluating the RNN-DBSCAN algorithm. The table below shows the results for various `N` neighbors used. By theory, low Silhouette coefficient scores indicate that the distance between the clusters is not significant. However, computing the standard statistical measures such as mean, median, mode, standard deviation and performing a visual cluster analysis paints a different picture on the performance of RNN-DBSCAN.
 
-The following table lists out the various metrics used to measure performance of the clustering algorithm:
+As Frankie noted in our of our meetings, relying on one metric doesn't provide a holistic understanding of what the algorithm is doing. This is especially evident in unsupervised algorithms where there is no "True" label to test the performance on. As observed in the table below, on average the median and mode of the clusters contain `five features` in each cluster. Since I extract exactly five keyframe images from each timestamp it makes sense that there are clusters with five images each.
+
+**The following table lists out the various metrics used to measure performance of the clustering algorithm:**
 
 | Stage       | Silhouette Coefficient    | N Neighbors | Mean | Median | Mode | Standard Deviation |
 | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
@@ -149,7 +161,6 @@ I also took the time to demonstrate the various outputs across the different sta
 
 Starting with the music segmentation stage, this stage produces and stores the mfcc, loge features. Additionally it stores the start and stop times of segments where music was detected in a csv file.
 
-<img src="docs/images/Metadata_stored.png" height=110>
 
 <img src="docs/images/music_segmentation_csv_output.png" height=500>
 
@@ -175,6 +186,10 @@ One of the most frustrating parts of my project was the lack of direct access to
 (2) Consumer/Producer Multithreading
 
 Since this project deals with processing huge amounts of data, it had to be as efficient as possible. During the first few weeks of the coding phase, I spent a significant chunk of my time modifying the inaSpeechSegmenter library to incorporate multithreading. I additionally incorporated consumer-producer threads to ensure that the files which are being copied over to the GPU node did not result in an memory overflow. In doing this I was able to process 8 files at a time without overloading the memory.
+
+(3) Output tracing
+
+
 
 ### **Learnings**
 Overall, I've learned a significant amount throughout the time I've spent to develop this project. I have to give a huge thanks to my dear mentor [Frankie Robertson](https://frankie.robertson.name/), he helped elevate this project to great heights. He has consistently provided me with an abundant of relevant libraries, tutorials, papers and even got his hands dirty by helping me debugging issues that I'd be stuck on.
